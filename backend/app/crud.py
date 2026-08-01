@@ -16,6 +16,7 @@ DEFAULT_SETTINGS = SettingsOut(
     theme="light",
     salary=0,
     fundSplits=FundSplits(),
+    cashBalanceOffset=0,
 )
 
 
@@ -177,6 +178,7 @@ def get_settings(db: Session) -> SettingsOut:
             personal=row.fund_splits_personal,
             investment=row.fund_splits_investment,
         ),
+        cashBalanceOffset=getattr(row, "cash_balance_offset", 0) or 0,
     )
 
 
@@ -192,6 +194,8 @@ def patch_settings(db: Session, patch: SettingsIn) -> SettingsOut:
         merged["salary"] = patch.salary
     if patch.fundSplits is not None:
         merged["fundSplits"] = patch.fundSplits.model_dump()
+    if patch.cashBalanceOffset is not None:
+        merged["cashBalanceOffset"] = patch.cashBalanceOffset
 
     row.language = merged["language"]
     row.theme = merged["theme"]
@@ -199,5 +203,6 @@ def patch_settings(db: Session, patch: SettingsIn) -> SettingsOut:
     row.fund_splits_commitments = merged["fundSplits"]["commitments"]
     row.fund_splits_personal = merged["fundSplits"]["personal"]
     row.fund_splits_investment = merged["fundSplits"]["investment"]
+    row.cash_balance_offset = merged.get("cashBalanceOffset", 0) or 0
     db.commit()
     return get_settings(db)

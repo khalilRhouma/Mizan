@@ -5,6 +5,7 @@ const DEFAULT_SETTINGS = {
   theme: 'light',
   salary: 0,
   fundSplits: { commitments: 40, personal: 20, investment: 40 },
+  cashBalanceOffset: 0,
 }
 
 async function request(path, options = {}) {

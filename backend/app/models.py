@@ -54,3 +54,4 @@ class AppSettings(Base):
     fund_splits_commitments: Mapped[float] = mapped_column(Float, default=40)
     fund_splits_personal: Mapped[float] = mapped_column(Float, default=20)
     fund_splits_investment: Mapped[float] = mapped_column(Float, default=40)
+    cash_balance_offset: Mapped[float] = mapped_column(Float, default=0)

@@ -13,6 +13,7 @@ import {
   filterDebtsForMonth,
   getEurTransactions,
   groupByCategory,
+  cashBalanceAllTime,
   homeCashSummary,
   monthlyTotals,
   paymentMethodTotals,
@@ -48,6 +49,7 @@ export default function MonthlyPage({ lang }) {
     personal: 20,
     investment: 40,
   })
+  const [cashBalanceOffset, setCashBalanceOffset] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
@@ -61,6 +63,7 @@ export default function MonthlyPage({ lang }) {
       setTransactions(txs)
       setDebts(debtList)
       setFundSplits({ ...settings.fundSplits })
+      setCashBalanceOffset(settings.cashBalanceOffset ?? 0)
     } finally {
       setLoading(false)
     }
@@ -87,8 +90,8 @@ export default function MonthlyPage({ lang }) {
     [transactions, yearMonth],
   )
   const cashSummary = useMemo(
-    () => homeCashSummary(transactions, yearMonth),
-    [transactions, yearMonth],
+    () => homeCashSummary(transactions, yearMonth, cashBalanceOffset),
+    [transactions, yearMonth, cashBalanceOffset],
   )
   const eurTxns = useMemo(
     () => getEurTransactions(transactions, yearMonth),
@@ -149,6 +152,13 @@ export default function MonthlyPage({ lang }) {
     setSavedNotice(true)
   }
 
+  async function handleBalanceCorrect(targetAmount) {
+    const raw = cashBalanceAllTime(transactions)
+    const nextOffset = targetAmount - raw
+    await saveSettings({ cashBalanceOffset: nextOffset })
+    setCashBalanceOffset(nextOffset)
+  }
+
   if (loading) {
     return (
       <div className="page-content-narrow text-center text-text-muted py-12 text-sm">…</div>
@@ -183,7 +193,7 @@ export default function MonthlyPage({ lang }) {
         cashExpenses={expenseByPayment.cash ?? 0}
       />
 
-      <HomeCashPanel lang={lang} summary={cashSummary} />
+      <HomeCashPanel lang={lang} summary={cashSummary} onBalanceCorrect={handleBalanceCorrect} />
 
       <SavingsFundsForm
         lang={lang}

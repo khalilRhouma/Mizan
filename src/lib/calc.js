@@ -91,53 +91,11 @@ export function eurTotal(transactions, yearMonth) {
   )
 }
 
-export function getWithdrawals(transactions, yearMonth) {
-  return transactions.filter(
-    (tx) => tx.kind === 'cash_withdrawal' && isInMonth(tx.date, yearMonth),
-  )
-}
-
-export function cashBalanceAllTime(transactions, beforeMonth) {
-  let withdrawals = 0
-  let spent = 0
-
-  for (const tx of transactions) {
-    if (beforeMonth && tx.date.slice(0, 7) >= beforeMonth) continue
-
-    if (tx.kind === 'cash_withdrawal') {
-      withdrawals += tx.amount
-    } else if (
-      tx.type === 'expense' &&
-      tx.paymentMethod === 'cash' &&
-      tx.currency === 'TND' &&
-      isNormalTransaction(tx)
-    ) {
-      spent += tx.amount
-    }
-  }
-
-  return withdrawals - spent
-}
-
-export function homeCashSummary(transactions, yearMonth) {
-  const withdrawn = getWithdrawals(transactions, yearMonth).reduce(
-    (sum, tx) => sum + tx.amount,
-    0,
-  )
-  const spent = transactions
-    .filter(
-      (tx) =>
-        isInMonth(tx.date, yearMonth) &&
-        tx.type === 'expense' &&
-        tx.paymentMethod === 'cash' &&
-        tx.currency === 'TND' &&
-        isNormalTransaction(tx),
-    )
-    .reduce((sum, tx) => sum + tx.amount, 0)
-  const balance = cashBalanceAllTime(transactions)
-
-  return { withdrawn, spent, balance }
-}
+export {
+  cashBalanceAllTime,
+  getWithdrawals,
+  homeCashSummary,
+} from './cashBalance.js'
 
 export function filterDebtsForMonth(debts, yearMonth) {
   return debts.filter((debt) => {

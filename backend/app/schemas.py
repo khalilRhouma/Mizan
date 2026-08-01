@@ -54,6 +54,7 @@ class SettingsIn(BaseModel):
     theme: str | None = None
     salary: float | None = None
     fundSplits: FundSplits | None = None
+    cashBalanceOffset: float | None = None
 
 
 class SettingsOut(BaseModel):
@@ -61,4 +62,5 @@ class SettingsOut(BaseModel):
     theme: str
     salary: float
     fundSplits: FundSplits
+    cashBalanceOffset: float = 0
 

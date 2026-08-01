@@ -29,6 +29,13 @@ cors_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "ALTER TABLE settings ADD COLUMN IF NOT EXISTS "
+                "cash_balance_offset DOUBLE PRECISION DEFAULT 0"
+            )
+        )
     yield
 
 
