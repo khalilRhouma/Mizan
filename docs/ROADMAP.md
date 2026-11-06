@@ -198,6 +198,11 @@ Ordered by value for daily use. Pick them one at a time.
 - [ ] KPI cards: compare with last month ("+12 % vs October").
 - [ ] Loading skeletons instead of "…".
 
+**Decision needed**
+- [ ] **Card = EUR?** The app treats every card payment as EUR (main form and quick add:
+      `بالكارطة` → EUR). If you also pay with a Tunisian card in dinars, split it into
+      "local card (TND)" and "foreign card (EUR)".
+
 **Small polish**
 - [ ] `GET /monthly-funds/{month}` returns 404 when a month has no funds: return an empty
       object instead, to remove console errors.
@@ -227,6 +232,7 @@ Ordered by value for daily use. Pick them one at a time.
 | 2026-11-06 | 0 | README screenshots replaced with fake demo data (`scripts/seed_demo.py`), old ones purged from git history |
 | 2026-11-06 | 1 | Alembic, NUMERIC money, input validation, `GET /categories`, small fixes, clean lint, pytest suite |
 | 2026-11-06 | 2 | Quick-add parser (rules + dateparser + rapidfuzz), learned words, quick-add card, UX review |
+| 2026-11-06 | 2 | Tunisian dialect: أول البارح, dialect weekdays, millimes, بالكارطة; ~140 Derja seed words; tests mostly in Arabic/Derja (122 backend tests) |
 
 ---
 
