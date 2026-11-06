@@ -38,6 +38,7 @@ export default function SavingsFundsForm({
               <label className="block text-xs text-text-muted mb-1">{t('fundCommitments', lang)}</label>
               <input
                 type="number"
+                inputMode="decimal"
                 min="0"
                 max="100"
                 step="1"
@@ -50,6 +51,7 @@ export default function SavingsFundsForm({
               <label className="block text-xs text-text-muted mb-1">{t('fundPersonal', lang)}</label>
               <input
                 type="number"
+                inputMode="decimal"
                 min="0"
                 max="100"
                 step="1"
@@ -62,6 +64,7 @@ export default function SavingsFundsForm({
               <label className="block text-xs text-text-muted mb-1">{t('fundInvestment', lang)}</label>
               <input
                 type="number"
+                inputMode="decimal"
                 min="0"
                 max="100"
                 step="1"
@@ -89,6 +92,7 @@ export default function SavingsFundsForm({
           <label className="label-field">{fundLabel('fundCommitments', 'commitments')}</label>
           <input
             type="number"
+            inputMode="decimal"
             step="0.001"
             value={funds.commitments}
             onChange={(e) => handleAmountChange('commitments', e.target.value)}
@@ -99,6 +103,7 @@ export default function SavingsFundsForm({
           <label className="label-field">{fundLabel('fundPersonal', 'personal')}</label>
           <input
             type="number"
+            inputMode="decimal"
             step="0.001"
             value={funds.personal}
             onChange={(e) => handleAmountChange('personal', e.target.value)}
@@ -109,6 +114,7 @@ export default function SavingsFundsForm({
           <label className="label-field">{fundLabel('fundInvestment', 'investment')}</label>
           <input
             type="number"
+            inputMode="decimal"
             step="0.001"
             value={funds.investment}
             onChange={(e) => handleAmountChange('investment', e.target.value)}

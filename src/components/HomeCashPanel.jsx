@@ -73,6 +73,7 @@ export default function HomeCashPanel({ lang, summary, onBalanceCorrect }) {
               <input
                 ref={inputRef}
                 type="number"
+                inputMode="decimal"
                 step="any"
                 disabled={saving}
                 value={draft}

@@ -44,8 +44,11 @@ export const DONUT_COLORS = [
   '#6B8FD4',
 ]
 
+const amountFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
+
+/** 2800 -> "2,800.000" (3 decimals for millimes, comma every 3 digits). */
 export function formatAmount(n) {
-  return n.toFixed(3)
+  return amountFormat.format(Number(n) || 0)
 }
 
 export function shortMonthLabel(yearMonth, lang) {

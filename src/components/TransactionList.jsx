@@ -1,6 +1,7 @@
 import { getCategoryLabel, getCurrencySymbol, getPaymentMethodLabel } from '../constants'
 import { t } from '../i18n'
-import { deleteTransaction } from '../services/storage'
+import { toast } from 'sonner'
+import { deleteTransaction, saveTransaction } from '../services/storage'
 import { formatAmount } from '../lib/chartUtils'
 
 function TransactionBadge({ tx, lang }) {
@@ -22,9 +23,30 @@ export default function TransactionList({ lang, transactions, editingId, onEdit,
     return b.createdAt - a.createdAt
   })
 
-  async function handleDelete(id) {
-    await deleteTransaction(id)
-    onChanged(id)
+  // Delete at once, then offer "Undo" for a few seconds: saving the same
+  // transaction again (same id) restores it exactly.
+  async function handleDelete(tx) {
+    try {
+      await deleteTransaction(tx.id)
+    } catch {
+      toast.error(t('deleteFailed', lang))
+      return
+    }
+    onChanged(tx.id)
+    toast(t('deleted', lang), {
+      duration: 6000,
+      action: {
+        label: t('undo', lang),
+        onClick: async () => {
+          try {
+            await saveTransaction(tx)
+            onChanged()
+          } catch {
+            toast.error(t('saveFailed', lang))
+          }
+        },
+      },
+    })
   }
 
   if (sorted.length === 0) {
@@ -66,7 +88,7 @@ export default function TransactionList({ lang, transactions, editingId, onEdit,
               <button type="button" onClick={() => onEdit(tx)} className="btn-accent-ghost">
                 {t('edit', lang)}
               </button>
-              <button type="button" onClick={() => handleDelete(tx.id)} className="btn-danger-ghost">
+              <button type="button" onClick={() => handleDelete(tx)} className="btn-danger-ghost">
                 {t('delete', lang)}
               </button>
             </div>

@@ -1,11 +1,8 @@
+import { formatAmount } from '../../lib/chartUtils'
 const ACCENT_COLORS = {
   accent: 'text-accent',
   success: 'text-success',
   danger: 'text-danger',
-}
-
-function formatAmount(n) {
-  return n.toFixed(3)
 }
 
 export default function KpiCard({ label, amount, suffix = 'د.ت', accent = 'accent' }) {

@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { getCategoriesByType } from '../constants'
 import { t } from '../i18n'
 import { saveTransaction } from '../services/storage'
 import { localDateString } from '../lib/dates'
+import { getLastCategory, rememberCategory } from '../lib/lastCategory'
 
 function modeFromTransaction(tx) {
   if (tx?.kind === 'cash_withdrawal') return 'withdrawal'
@@ -21,7 +23,7 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
   const [type, setType] = useState(tx?.type ?? 'expense')
   const [amount, setAmount] = useState(tx ? String(tx.amount) : '')
   const [paymentMethod, setPaymentMethod] = useState(tx?.paymentMethod ?? 'bank')
-  const [category, setCategory] = useState(tx?.category ?? 'rent')
+  const [category, setCategory] = useState(tx?.category ?? getLastCategory('expense'))
   const [date, setDate] = useState(tx?.date ?? localDateString())
   const [notes, setNotes] = useState(tx?.notes ?? '')
   const [recurring, setRecurring] = useState(tx?.recurring ?? false)
@@ -34,11 +36,11 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
     if (nextMode === 'income') {
       setType('income')
       setPaymentMethod('bank')
-      setCategory(getCategoriesByType('income')[0]?.key ?? 'salary')
+      setCategory(getLastCategory('income'))
     } else if (nextMode === 'expense') {
       setType('expense')
       setPaymentMethod('bank')
-      setCategory(getCategoriesByType('expense')[0]?.key ?? 'rent')
+      setCategory(getLastCategory('expense'))
     }
   }
 
@@ -51,7 +53,7 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
     setType('expense')
     setAmount('')
     setPaymentMethod('bank')
-    setCategory('rent')
+    setCategory(getLastCategory('expense'))
     setDate(localDateString())
     setNotes('')
     setRecurring(false)
@@ -94,11 +96,14 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
           recurring,
           createdAt,
         })
+        rememberCategory(type, category)
       }
+      toast.success(isEditing ? t('updated', lang) : t('saved', lang))
       resetForm()
       onSaved()
     } catch {
-      /* submit failed — form stays open */
+      // The form stays filled so nothing is lost; the API rejected it (422) or is down.
+      toast.error(t('saveFailed', lang))
     }
   }
 
@@ -155,6 +160,7 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
         <input
           id="amount"
           type="number"
+          inputMode="decimal"
           min="0"
           step="0.001"
           required

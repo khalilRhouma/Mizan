@@ -168,16 +168,16 @@ Pick from this list after Phase 3, one at a time:
 Ordered by value for daily use. Pick them one at a time.
 
 **Fix soon (small, high value)**
-- [ ] **Show save errors in the main form.** `TransactionForm` catches errors and shows nothing.
+- [x] **Show save errors in the main form.** `TransactionForm` catches errors and shows nothing.
       Since Phase 1 the API rejects bad input (422), so a failed save is now silent. Show a red message.
-- [ ] **Confirm before delete** in the transaction list (one tap deletes now, no undo).
+- [x] **Confirm before delete** in the transaction list (one tap deletes now, no undo).
       Better: an "Undo" toast for 5 seconds instead of a dialog.
-- [ ] **Success feedback** after saving in the main form (short toast "Saved").
-- [ ] **Better default category** in the main form: today it is "Rent" for every new expense.
+- [x] **Success feedback** after saving in the main form (short toast "Saved").
+- [x] **Better default category** in the main form: today it is "Rent" for every new expense.
       Use the last category used, or the most frequent one.
-- [ ] **Number keypad on phones:** add `inputMode="decimal"` to all amount fields
+- [x] **Number keypad on phones:** add `inputMode="decimal"` to all amount fields
       (only the quick-add card has it).
-- [ ] **Thousands separator:** show `2,800.000` instead of `2800.000` (`formatAmount` in
+- [x] **Thousands separator:** show `2,800.000` instead of `2800.000` (`formatAmount` in
       `src/lib/chartUtils.js`, use `Intl.NumberFormat`).
 
 **Log page**

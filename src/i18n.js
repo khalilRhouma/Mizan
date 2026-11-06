@@ -1,6 +1,12 @@
 const dictionary = {
   ar: {
     appTitle: 'نظام تتبع المالية',
+    saved: 'تم الحفظ',
+    updated: 'تم التعديل',
+    saveFailed: 'لم يتم الحفظ. تأكد من المبلغ والتاريخ، أو أن الخادم يعمل.',
+    deleted: 'تم الحذف',
+    deleteFailed: 'لم يتم الحذف. تأكد أن الخادم يعمل.',
+    undo: 'تراجع',
     quickAdd: 'إضافة سريعة',
     quickAddHint: 'مصروف واحد في كل سطر. يمكنك لصق ملاحظة الهاتف كاملة. سطر فيه تاريخ فقط ينطبق على الأسطر التي تحته.',
     quickAddPlaceholder: 'ليسونس 60\nحوايج 45 البارح\nخبز 500 مليم\n3/11\nدوا 18 بالكارطة',
@@ -119,6 +125,12 @@ const dictionary = {
   },
   en: {
     appTitle: 'Personal Finance Tracker',
+    saved: 'Saved',
+    updated: 'Updated',
+    saveFailed: 'Not saved. Check the amount and date, or that the server is running.',
+    deleted: 'Deleted',
+    deleteFailed: 'Not deleted. Check that the server is running.',
+    undo: 'Undo',
     quickAdd: 'Quick add',
     quickAddHint: 'One spend per line. You can paste your whole phone note. A line with only a date applies to the lines below it.',
     quickAddPlaceholder: 'gas 60\nchemise 45 yesterday\nnetflix 12€\n3/11\npharmacy 18',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { ThemeContext } from './context/ThemeContext'
 import Layout from './components/Layout'
 import DashboardPage from './pages/DashboardPage'
@@ -63,6 +64,7 @@ export default function App() {
 
   return (
     <ThemeContext.Provider value={theme}>
+      <Toaster position="top-center" dir={lang === 'ar' ? 'rtl' : 'ltr'} theme={theme} richColors closeButton />
       <Layout
         lang={lang}
         theme={theme}

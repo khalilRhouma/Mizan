@@ -161,6 +161,7 @@ export default function DebtLedgerPanel({ lang, type, entries, onChanged }) {
             <label className="label-field">{t('amount', lang)}</label>
             <input
               type="number"
+              inputMode="decimal"
               min="0"
               step="0.001"
               required
