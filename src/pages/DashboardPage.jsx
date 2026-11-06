@@ -4,7 +4,7 @@ import FundBalanceChart from '../components/charts/FundBalanceChart'
 import IncomeExpenseChart from '../components/charts/IncomeExpenseChart'
 import SavingsAreaChart from '../components/charts/SavingsAreaChart'
 import Card from '../components/ui/Card'
-import MonthSummaryCards from '../components/MonthSummaryCards'
+import MonthHero from '../components/MonthHero'
 import { t } from '../i18n'
 import {
   fundCumulativeSeries,
@@ -14,6 +14,7 @@ import {
   savingsTimeSeries,
   trailingYearMonths,
 } from '../lib/calc'
+import { previousYearMonth } from '../lib/dates'
 import { getMonthlyFundsList, getSettings, getTransactions } from '../services/storage'
 
 function currentYearMonth() {
@@ -59,18 +60,31 @@ export default function DashboardPage({ lang }) {
     [transactions, kpiMonth],
   )
 
+  const previousTotals = useMemo(
+    () => monthlyTotals(transactions, previousYearMonth(kpiMonth)),
+    [transactions, kpiMonth],
+  )
+
+  // Charts start at the first month that has data (no long row of empty bars).
+  const chartMonths = useMemo(() => {
+    const months = new Set(transactions.map((tx) => tx.date.slice(0, 7)))
+    const first = periodMonths.findIndex((ym) => months.has(ym))
+    if (first <= 0) return periodMonths
+    return periodMonths.slice(Math.min(first, periodMonths.length - 3))
+  }, [transactions, periodMonths])
+
   const barData = useMemo(
     () =>
-      periodMonths.map((ym) => ({
+      chartMonths.map((ym) => ({
         yearMonth: ym,
         ...monthlyTotals(transactions, ym),
       })),
-    [transactions, periodMonths],
+    [transactions, chartMonths],
   )
 
   const savingsData = useMemo(
-    () => savingsTimeSeries(transactions, periodMonths),
-    [transactions, periodMonths],
+    () => savingsTimeSeries(transactions, chartMonths),
+    [transactions, chartMonths],
   )
 
   const expenseByCategory = useMemo(
@@ -79,18 +93,25 @@ export default function DashboardPage({ lang }) {
   )
 
   const fundMonthly = useMemo(
-    () => fundMonthlySeries(monthlyFundsList, periodMonths, transactions, fundSplits),
-    [monthlyFundsList, periodMonths, transactions, fundSplits],
+    () => fundMonthlySeries(monthlyFundsList, chartMonths, transactions, fundSplits),
+    [monthlyFundsList, chartMonths, transactions, fundSplits],
   )
 
   const fundCumulative = useMemo(
-    () => fundCumulativeSeries(monthlyFundsList, periodMonths, transactions, fundSplits),
-    [monthlyFundsList, periodMonths, transactions, fundSplits],
+    () => fundCumulativeSeries(monthlyFundsList, chartMonths, transactions, fundSplits),
+    [monthlyFundsList, chartMonths, transactions, fundSplits],
   )
 
   if (loading) {
     return (
-      <div className="text-center text-text-muted py-12 text-sm">…</div>
+      <div className="page-stack" aria-busy="true">
+        <div className="skeleton h-10 w-48" />
+        <div className="skeleton h-56 !rounded-card" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="skeleton h-80 !rounded-card lg:col-span-8" />
+          <div className="skeleton h-80 !rounded-card lg:col-span-4" />
+        </div>
+      </div>
     )
   }
 
@@ -127,7 +148,7 @@ export default function DashboardPage({ lang }) {
         </div>
       </div>
 
-      <MonthSummaryCards lang={lang} totals={kpiTotals} />
+      <MonthHero lang={lang} yearMonth={kpiMonth} totals={kpiTotals} previousTotals={previousTotals} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <Card className="lg:col-span-8" title={t('incomeVsExpense', lang)}>

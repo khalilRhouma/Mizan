@@ -38,3 +38,10 @@ export function friendlyDay(dateStr, lang, labels, today = new Date()) {
     ...(sameYear ? {} : { year: 'numeric' }),
   }).format(date)
 }
+
+/** "2026-01" -> "2025-12" */
+export function previousYearMonth(yearMonth) {
+  const [y, m] = yearMonth.split('-').map(Number)
+  const d = new Date(y, m - 2, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}

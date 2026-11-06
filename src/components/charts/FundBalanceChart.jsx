@@ -24,7 +24,7 @@ function CustomTooltip({ active, payload, label, lang }) {
     cumInvestment: `${t('fundInvestment', lang)} (${t('cumulative', lang)})`,
   }
   return (
-    <div className="bg-surface border border-border rounded-card p-3 text-sm shadow-card max-w-xs">
+    <div className="bg-surface-elevated border border-border rounded-btn px-3 py-2 text-sm shadow-float max-w-xs">
       <p className="text-text-muted mb-1">{label}</p>
       {payload.map((entry) => (
         <p key={entry.dataKey} style={{ color: entry.color }}>
@@ -52,7 +52,7 @@ export default function FundBalanceChart({ lang, monthlyData, cumulativeData }) 
   return (
     <ResponsiveContainer width="100%" height={320}>
       <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid stroke={colors.grid} strokeDasharray="3 3" vertical={false} />
+        <CartesianGrid stroke={colors.grid} vertical={false} />
         <XAxis dataKey="name" tick={{ fill: colors.text, fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: colors.text, fontSize: 11 }} axisLine={false} tickLine={false} />
         <Tooltip content={<CustomTooltip lang={lang} />} />

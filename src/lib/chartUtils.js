@@ -1,47 +1,49 @@
 import { MONTH_NAMES } from '../constants'
 
+// Same colors as the CSS tokens in src/index.css (Recharts needs real values).
 export function getChartColors(isDark) {
   if (isDark) {
     return {
-      grid: 'rgba(255,255,255,0.08)',
-      accent: '#F37338',
-      success: '#4ADE80',
-      danger: '#FF6B6B',
-      text: '#98989D',
-      fundCommitments: '#F37338',
-      fundPersonal: '#4ADE80',
-      fundInvestment: '#6B8FD4',
-      tooltipBg: '#262627',
-      tooltipBorder: 'rgba(255,255,255,0.12)',
+      grid: 'rgba(255,255,255,0.06)',
+      accent: '#F5824D',
+      success: '#4FC48D',
+      danger: '#FF7B88',
+      text: '#9B978F',
+      fundCommitments: '#F5824D',
+      fundPersonal: '#4FC48D',
+      fundInvestment: '#7D9DE0',
+      tooltipBg: '#232322',
+      tooltipBorder: 'rgba(255,255,255,0.08)',
     }
   }
   return {
-    grid: '#D1CDC7',
+    grid: '#EDE8E0',
     accent: '#F37338',
-    success: '#2D7A3A',
-    danger: '#C41E3A',
-    text: '#696969',
+    success: '#1D7A4E',
+    danger: '#C23A4B',
+    text: '#6E6A64',
     fundCommitments: '#F37338',
-    fundPersonal: '#2D7A3A',
+    fundPersonal: '#1D7A4E',
     fundInvestment: '#3860BE',
-    tooltipBg: '#FCFBFA',
-    tooltipBorder: '#D1CDC7',
+    tooltipBg: '#FFFFFF',
+    tooltipBorder: '#E6E0D7',
   }
 }
 
+// Calm, distinct colors for categories (work on light and dark backgrounds).
 export const DONUT_COLORS = [
   '#F37338',
-  '#2D7A3A',
-  '#C41E3A',
+  '#1D7A4E',
   '#3860BE',
-  '#9A3A0A',
-  '#CF4500',
-  '#696969',
-  '#141413',
-  '#D1CDC7',
-  '#262627',
-  '#4ADE80',
-  '#6B8FD4',
+  '#C23A4B',
+  '#D9A441',
+  '#7A5CC2',
+  '#2A9D8F',
+  '#8C6A4F',
+  '#E08AA6',
+  '#6E6A64',
+  '#9BB45C',
+  '#B5ADA3',
 ]
 
 const amountFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })

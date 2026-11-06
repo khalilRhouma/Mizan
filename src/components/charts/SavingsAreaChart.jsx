@@ -14,7 +14,7 @@ import { t } from '../../i18n'
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-surface border border-border rounded-card p-3 text-sm shadow-card">
+    <div className="bg-surface-elevated border border-border rounded-btn px-3 py-2 text-sm shadow-float">
       <p className="text-text-muted mb-1">{label}</p>
       <p className="text-accent tabular-nums">{formatAmount(payload[0].value)} د.ت</p>
     </div>
@@ -39,7 +39,7 @@ export default function SavingsAreaChart({ lang, data }) {
             <stop offset="100%" stopColor={colors.success} stopOpacity={0.05} />
           </linearGradient>
         </defs>
-        <CartesianGrid stroke={colors.grid} strokeDasharray="3 3" vertical={false} />
+        <CartesianGrid stroke={colors.grid} vertical={false} />
         <XAxis dataKey="name" tick={{ fill: colors.text, fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: colors.text, fontSize: 11 }} axisLine={false} tickLine={false} />
         <Tooltip content={<CustomTooltip />} />

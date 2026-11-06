@@ -15,7 +15,7 @@ import { t } from '../../i18n'
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-surface border border-border rounded-card p-3 text-sm shadow-card">
+    <div className="bg-surface-elevated border border-border rounded-btn px-3 py-2 text-sm shadow-float">
       <p className="text-text-muted mb-1">{label}</p>
       {payload.map((entry) => (
         <p key={entry.dataKey} style={{ color: entry.color }}>
@@ -39,7 +39,7 @@ export default function IncomeExpenseChart({ lang, data }) {
   return (
     <ResponsiveContainer width="100%" height={280}>
       <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-        <CartesianGrid stroke={colors.grid} strokeDasharray="3 3" vertical={false} />
+        <CartesianGrid stroke={colors.grid} vertical={false} />
         <XAxis dataKey="name" tick={{ fill: colors.text, fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: colors.text, fontSize: 11 }} axisLine={false} tickLine={false} />
         <Tooltip content={<CustomTooltip />} />
@@ -50,8 +50,8 @@ export default function IncomeExpenseChart({ lang, data }) {
             </span>
           )}
         />
-        <Bar dataKey="income" name="income" fill={colors.success} radius={[4, 4, 0, 0]} />
-        <Bar dataKey="expense" name="expense" fill={colors.danger} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="income" name="income" fill={colors.success} radius={[6, 6, 0, 0]} maxBarSize={22} />
+        <Bar dataKey="expense" name="expense" fill={colors.danger} radius={[6, 6, 0, 0]} maxBarSize={22} />
       </BarChart>
     </ResponsiveContainer>
   )

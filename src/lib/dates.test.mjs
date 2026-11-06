@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { friendlyDay, localDateString } from './dates.js'
+import { friendlyDay, localDateString, previousYearMonth } from './dates.js'
 
 describe('localDateString', () => {
   it('formats a local date as YYYY-MM-DD with zero padding', () => {
@@ -35,5 +35,12 @@ describe('friendlyDay', () => {
 
   it('adds the year for another year', () => {
     assert.match(friendlyDay('2025-12-30', 'en', labels, today), /2025/)
+  })
+})
+
+describe('previousYearMonth', () => {
+  it('goes back one month, across the year', () => {
+    assert.equal(previousYearMonth('2026-11'), '2026-10')
+    assert.equal(previousYearMonth('2026-01'), '2025-12')
   })
 })
