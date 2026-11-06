@@ -18,6 +18,9 @@ async function request(path, options = {}) {
     throw new Error(detail || `API error ${res.status}`)
   }
   if (res.status === 204) return null
+  // 202 from the service worker: the server was unreachable, the save is kept
+  // on the phone and sent later. Callers check `result.queued`.
+  if (res.status === 202 && res.headers.get('X-Mizan-Queued')) return { queued: true }
   return res.json()
 }
 

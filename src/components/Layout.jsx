@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { t } from '../i18n'
+import { syncNow, usePendingSaves } from '../lib/pwa'
 import { saveSettings } from '../services/storage'
 
 function ThemeIcon({ theme }) {
@@ -19,6 +20,7 @@ function ThemeIcon({ theme }) {
 
 export default function Layout({ lang, theme, onLanguageChange, onThemeChange, children }) {
   const isRtl = lang === 'ar'
+  const pendingSaves = usePendingSaves()
 
   function toggleLanguage() {
     const next = lang === 'ar' ? 'en' : 'ar'
@@ -37,9 +39,21 @@ export default function Layout({ lang, theme, onLanguageChange, onThemeChange, c
       <header className="sticky top-0 z-20 pt-6 px-4 pb-4">
         <div className="max-w-6xl mx-auto nav-pill px-4 py-3 sm:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <h1 className="text-base md:text-lg font-medium tracking-nav text-text-primary shrink-0">
-              {t('appTitle', lang)}
-            </h1>
+            <div className="flex items-center gap-3 shrink-0">
+              <h1 className="text-base md:text-lg font-medium tracking-nav text-text-primary">
+                {t('appTitle', lang)}
+              </h1>
+              {pendingSaves > 0 && (
+                <button
+                  type="button"
+                  onClick={syncNow}
+                  title={t('sendNow', lang)}
+                  className="badge-warning border border-warning hover:opacity-80"
+                >
+                  ⏳ {t('pendingSaves', lang, { n: pendingSaves })} · {t('sendNow', lang)}
+                </button>
+              )}
+            </div>
             <nav className="flex flex-wrap items-center gap-1 sm:gap-2">
               <NavLink to="/log" className={navClass}>
                 {t('navLog', lang)}

@@ -5,6 +5,7 @@ import { t } from '../i18n'
 import { saveTransaction } from '../services/storage'
 import { localDateString } from '../lib/dates'
 import { getLastCategory, rememberCategory } from '../lib/lastCategory'
+import { isQueued } from '../lib/pwa'
 
 function modeFromTransaction(tx) {
   if (tx?.kind === 'cash_withdrawal') return 'withdrawal'
@@ -68,8 +69,9 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
     const createdAt = editingTransaction?.createdAt ?? Date.now()
 
     try {
+      let result
       if (mode === 'withdrawal') {
-        await saveTransaction({
+        result = await saveTransaction({
           id,
           date,
           type: 'expense',
@@ -83,7 +85,7 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
           createdAt,
         })
       } else {
-        await saveTransaction({
+        result = await saveTransaction({
           id,
           date,
           type,
@@ -98,7 +100,8 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
         })
         rememberCategory(type, category)
       }
-      toast.success(isEditing ? t('updated', lang) : t('saved', lang))
+      if (isQueued(result)) toast.info(t('savedOffline', lang))
+      else toast.success(isEditing ? t('updated', lang) : t('saved', lang))
       resetForm()
       onSaved()
     } catch {

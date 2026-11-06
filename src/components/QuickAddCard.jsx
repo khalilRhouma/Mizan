@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getCategoriesByType, getCategoryLabel } from '../constants'
 import { t } from '../i18n'
 import { localDateString } from '../lib/dates'
+import { isQueued } from '../lib/pwa'
 import { learnCategoryRules, parseQuickAdd, saveTransaction } from '../services/storage'
 import LearnedWordsPanel from './LearnedWordsPanel'
 import Card from './ui/Card'
@@ -44,8 +45,39 @@ function toTransaction(d) {
   }
 }
 
+// The typed text survives closing the app (useful offline: read it later).
+const TEXT_KEY = 'mizan.quickAddText'
+
+function loadText() {
+  try {
+    return localStorage.getItem(TEXT_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function storeText(value) {
+  try {
+    if (value) localStorage.setItem(TEXT_KEY, value)
+    else localStorage.removeItem(TEXT_KEY)
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 export default function QuickAddCard({ lang, onSaved }) {
-  const [text, setText] = useState('')
+  const [text, setTextState] = useState(loadText)
+  const textareaRef = useRef(null)
+
+  function setText(value) {
+    setTextState(value)
+    storeText(value)
+  }
+
+  // Home-screen shortcut "Add expense" opens /log?quick=1: focus the box.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has('quick')) textareaRef.current?.focus()
+  }, [])
   const [drafts, setDrafts] = useState([])
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState(null) // { kind: 'success' | 'error', text }
@@ -96,9 +128,11 @@ export default function QuickAddCard({ lang, onSaved }) {
     setMessage(null)
     const savedUids = new Set()
     const learnItems = []
+    let queued = 0
     for (const d of ready) {
       try {
-        await saveTransaction(toTransaction(d))
+        const result = await saveTransaction(toTransaction(d))
+        if (isQueued(result)) queued += 1
         savedUids.add(d.uid)
         if (d.keywords.length > 0) learnItems.push({ keywords: d.keywords, category: d.category })
       } catch {
@@ -114,9 +148,11 @@ export default function QuickAddCard({ lang, onSaved }) {
     setDrafts(remaining)
     if (remaining.length === 0) setText('')
     setMessage(
-      savedUids.size === ready.length
-        ? { kind: 'success', text: t('quickAddSaved', lang, { n: savedUids.size }) }
-        : { kind: 'error', text: t('quickAddSaveError', lang) },
+      savedUids.size < ready.length
+        ? { kind: 'error', text: t('quickAddSaveError', lang) }
+        : queued > 0
+          ? { kind: 'success', text: t('savedOffline', lang) }
+          : { kind: 'success', text: t('quickAddSaved', lang, { n: savedUids.size }) },
     )
     setBusy(false)
     if (savedUids.size > 0) onSaved?.()
@@ -135,6 +171,7 @@ export default function QuickAddCard({ lang, onSaved }) {
 
       <div className="flex flex-col sm:flex-row gap-2">
         <textarea
+          ref={textareaRef}
           dir="auto"
           rows={Math.min(Math.max(text.split('\n').length, 2), 8)}
           value={text}

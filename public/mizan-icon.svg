@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Mizan: a wallet with a coin going in (money / spending). Ink background,
+       cream wallet, orange coin and clasp (app accent color). -->
+  <rect width="512" height="512" rx="112" fill="#141413"/>
+  <!-- coin, half inside the wallet -->
+  <circle cx="300" cy="170" r="66" fill="#f37338"/>
+  <circle cx="300" cy="170" r="42" fill="none" stroke="#141413" stroke-width="12"/>
+  <!-- wallet back strap -->
+  <path d="M104 214h258a42 42 0 0 1 42 42" fill="none" stroke="#f3f0ee" stroke-width="22" stroke-linecap="round"/>
+  <!-- wallet body -->
+  <rect x="88" y="214" width="336" height="206" rx="44" fill="#f3f0ee"/>
+  <!-- clasp -->
+  <rect x="318" y="282" width="122" height="72" rx="30" fill="#f37338"/>
+  <circle cx="356" cy="318" r="13" fill="#141413"/>
+</svg>

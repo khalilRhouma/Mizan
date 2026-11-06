@@ -18,4 +18,14 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    // Build config runs in Node.
+    files: ['*.config.js'],
+    languageOptions: { globals: globals.node },
+  },
+  {
+    // Service worker globals (self, clients...).
+    files: ['src/sw.js'],
+    languageOptions: { globals: globals.serviceworker },
+  },
 ])
