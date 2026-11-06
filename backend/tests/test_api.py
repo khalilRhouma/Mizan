@@ -30,10 +30,10 @@ def test_create_list_update_delete_transaction(client):
     assert tx["date"] == "2026-03-15"
     assert tx["cardSettled"] is False
 
-    client.post("/transactions", json=make_tx(amount=75.5, notes="fuel + wash"))
+    client.post("/transactions", json=make_tx(amount=75.5, notes="ليسونس + لافاج"))
     [tx] = client.get("/transactions").json()
     assert tx["amount"] == 75.5
-    assert tx["notes"] == "fuel + wash"
+    assert tx["notes"] == "ليسونس + لافاج"
 
     assert client.delete("/transactions/tx-1").status_code == 204
     assert client.get("/transactions").json() == []
@@ -155,10 +155,14 @@ def test_invalid_settings_are_rejected(client, body):
 
 # --- quick add ----------------------------------------------------------------
 
-def test_parse_returns_drafts_and_saves_nothing(client):
-    res = client.post("/quick-add/parse", json={"text": "3/11\ngas 60\nصيدلية 18\nbuy gift", "today": "2026-11-06"})
+def parse(client, text: str) -> list[dict]:
+    res = client.post("/quick-add/parse", json={"text": text, "today": "2026-11-06"})
     assert res.status_code == 200
-    drafts = res.json()["drafts"]
+    return res.json()["drafts"]
+
+
+def test_parse_returns_drafts_and_saves_nothing(client):
+    drafts = parse(client, "3/11\nليسونس 60\nصيدلية 18\nنشري هدية")
     assert [(d["date"], d["amount"], d["category"], d["error"]) for d in drafts] == [
         ("2026-11-03", 60, "car", None),
         ("2026-11-03", 18, "health", None),
@@ -167,40 +171,79 @@ def test_parse_returns_drafts_and_saves_nothing(client):
     assert client.get("/transactions").json() == []
 
 
-def test_category_labels_work_as_words(client):
-    [d] = client.post("/quick-add/parse", json={"text": "ملابس 40", "today": "2026-11-06"}).json()["drafts"]
-    assert d["category"] == "clothes"
-    [d] = client.post("/quick-add/parse", json={"text": "extra 40", "today": "2026-11-06"}).json()["drafts"]
+@pytest.mark.parametrize(
+    "line, category",
+    [
+        # Tunisian words from the seed migrations (real vocabulary, not test data)
+        ("ليسونس 60", "car"),
+        ("كرهبة لافاج 15", "car"),
+        ("تاكسي 7", "car"),
+        ("قضية 45", "food"),
+        ("خضرة وغلة 23", "food"),
+        ("حوت 30", "food"),
+        ("حوايج 120", "clothes"),
+        ("زوز سراول 90", "clothes"),
+        ("صباط 89", "clothes"),
+        ("الفريب 35", "clothes"),
+        ("دوا 18", "health"),
+        ("سبيطار 40", "health"),
+        ("ستاغ 85", "bills"),
+        ("صوناد 32", "bills"),
+        ("رشارج 5", "bills"),
+        ("كرا 650", "rent"),
+        ("صدقة 10", "donations"),
+        ("قهوة 3", "leisure"),
+        ("لبلابي 4", "leisure"),
+        ("9ahwa 3", "leisure"),
+        ("جافال 4", "needs"),
+        ("ياجور 300", "construction"),
+        ("ملابس 40", "clothes"),  # category name works as a word
+    ],
+)
+def test_tunisian_vocabulary(client, line, category):
+    [d] = parse(client, line)
+    assert d["category"] == category, line
+
+
+def test_salary_line_is_income(client):
+    [d] = parse(client, "الشهرية 2500")
+    assert (d["type"], d["category"], d["paymentMethod"]) == ("income", "salary", "bank")
+
+
+def test_shared_category_word_is_ignored(client):
+    [d] = parse(client, "extra 40")
     assert d["category"] is None  # "extra" belongs to two categories
 
 
 def test_learning_changes_the_next_guess(client):
-    text = {"text": "zorblax 25", "today": "2026-11-06"}
-    [d] = client.post("/quick-add/parse", json=text).json()["drafts"]
-    assert d["category"] is None and d["keywords"] == ["zorblax"]
+    line = "عصير برتقال 25"  # "orange juice": not in the seed words
+    [d] = parse(client, line)
+    assert d["category"] is None and d["keywords"] == ["عصير", "برتقال"]
 
-    res = client.post("/category-rules/learn", json={"items": [{"keywords": ["Zorblax"], "category": "leisure"}]})
-    assert res.json() == {"learned": 1}
-    [d] = client.post("/quick-add/parse", json=text).json()["drafts"]
+    res = client.post("/category-rules/learn", json={"items": [{"keywords": ["عصير", "برتقال"], "category": "leisure"}]})
+    assert res.json() == {"learned": 2}
+    [d] = parse(client, line)
     assert (d["category"], d["categorySource"]) == ("leisure", "rule")
 
     # Corrected twice to another category: the higher hit count wins.
     for _ in range(2):
-        client.post("/category-rules/learn", json={"items": [{"keywords": ["zorblax"], "category": "needs"}]})
-    [d] = client.post("/quick-add/parse", json=text).json()["drafts"]
-    assert d["category"] == "needs"
+        client.post("/category-rules/learn", json={"items": [{"keywords": ["عصير"], "category": "food"}]})
+    [d] = parse(client, "عصير 6")
+    assert d["category"] == "food"
 
-    rules = [r for r in client.get("/category-rules").json() if r["keyword"] == "zorblax"]
-    assert {(r["category"], r["hits"]) for r in rules} == {("leisure", 1), ("needs", 2)}
+    rules = [r for r in client.get("/category-rules").json() if r["keyword"] in ("عصير", "برتقال")]
+    assert {(r["keyword"], r["category"], r["hits"]) for r in rules} == {
+        ("عصير", "leisure", 1), ("برتقال", "leisure", 1), ("عصير", "food", 2),
+    }
     for r in rules:
         assert client.delete(f"/category-rules/{r['id']}").status_code == 204
-    [d] = client.post("/quick-add/parse", json=text).json()["drafts"]
+    [d] = parse(client, line)
     assert d["category"] is None
 
 
 def test_seed_rules_exist(client):
     keywords = {r["keyword"] for r in client.get("/category-rules").json()}
-    assert {"essence", "steg", "صيدليه"} <= keywords
+    assert {"ليسونس", "حوايج", "ستاغ", "صيدليه", "essence"} <= keywords
 
 
 @pytest.mark.parametrize(
@@ -208,7 +251,7 @@ def test_seed_rules_exist(client):
     [
         ("/quick-add/parse", {"text": ""}),
         ("/quick-add/parse", {"text": "x" * 20_001}),
-        ("/category-rules/learn", {"items": [{"keywords": ["gas"], "category": "unknown"}]}),
+        ("/category-rules/learn", {"items": [{"keywords": ["ليسونس"], "category": "unknown"}]}),
         ("/category-rules/learn", {"items": [{"keywords": ["a", "b", "c", "d", "e"], "category": "car"}]}),
     ],
 )

@@ -3,7 +3,7 @@ const dictionary = {
     appTitle: 'نظام تتبع المالية',
     quickAdd: 'إضافة سريعة',
     quickAddHint: 'مصروف واحد في كل سطر. يمكنك لصق ملاحظة الهاتف كاملة. سطر فيه تاريخ فقط ينطبق على الأسطر التي تحته.',
-    quickAddPlaceholder: 'بنزين 60\nchemise 45 hier\nnetflix 12€\n3/11\nصيدلية 18',
+    quickAddPlaceholder: 'ليسونس 60\nحوايج 45 البارح\nخبز 500 مليم\n3/11\nدوا 18 بالكارطة',
     quickAddRead: 'قراءة',
     quickAddShortcut: 'Enter للقراءة · Shift+Enter لسطر جديد',
     quickAddSaveN: 'حفظ {n}',

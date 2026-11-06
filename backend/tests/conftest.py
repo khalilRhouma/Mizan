@@ -57,7 +57,7 @@ def make_tx(**overrides) -> dict:
         "amount": 60,
         "currency": "TND",
         "category": "car",
-        "notes": "fuel",
+        "notes": "ليسونس",
         "recurring": False,
         "createdAt": 1_700_000_000_000,
         "kind": "normal",
@@ -71,7 +71,7 @@ def make_debt(**overrides) -> dict:
     debt = {
         "id": "debt-1",
         "type": "borrowed",
-        "label": "Loan from a friend",
+        "label": "سلفة من صاحبي",
         "amount": 500,
         "currency": "TND",
         "date": "2026-02-01",
