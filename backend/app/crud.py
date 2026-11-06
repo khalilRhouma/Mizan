@@ -1,14 +1,21 @@
+from datetime import date
+
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
-from app.models import AppSettings, Debt, MonthlyFund, Transaction
+from app.categories import CATEGORIES, CATEGORY_TYPES
+from app.models import AppSettings, CategoryRule, Debt, MonthlyFund, Transaction
+from app.parser import Draft, parse_text
 from app.schemas import (
     DebtIn,
     FundSplits,
+    LearnItem,
     MonthlyFundsIn,
     SettingsIn,
     SettingsOut,
     TransactionIn,
 )
+from app.text import keywords, normalize
 
 
 def _tx_to_api(row: Transaction) -> dict:
@@ -210,3 +217,63 @@ def patch_settings(db: Session, patch: SettingsIn) -> SettingsOut:
         row.cash_balance_offset = patch.cashBalanceOffset
     db.commit()
     return get_settings(db)
+
+
+# --- quick add / category rules ----------------------------------------------
+
+def rules_map(db: Session) -> dict[str, tuple[str, int]]:
+    """normalized keyword -> (category, hits), best category per keyword.
+
+    Category names themselves ("ملابس", "rent"...) are added with 0 hits, so a
+    learned rule always wins over them.
+    """
+    label_words: dict[str, set[str]] = {}
+    for c in CATEGORIES:
+        for word in keywords(f"{c['key'].replace('_', ' ')} {c['ar']} {c['en']}", limit=10):
+            label_words.setdefault(word, set()).add(c["key"])
+    # Skip words shared by several categories ("extra" -> income AND expense).
+    best: dict[str, tuple[str, int]] = {
+        word: (next(iter(cats)), 0) for word, cats in label_words.items() if len(cats) == 1
+    }
+    for row in db.query(CategoryRule).all():
+        current = best.get(row.keyword)
+        if current is None or row.hits > current[1]:
+            best[row.keyword] = (row.category, row.hits)
+    return best
+
+
+def parse_quick_add(db: Session, text: str, today: date) -> list[Draft]:
+    return parse_text(text, today, rules_map(db), CATEGORY_TYPES)
+
+
+def learn_rules(db: Session, items: list[LearnItem]) -> int:
+    """Add 1 hit to each (keyword, category) pair; create missing pairs."""
+    pairs: dict[tuple[str, str], int] = {}
+    for item in items:
+        for word in item.keywords:
+            key = normalize(word).strip()
+            if 2 <= len(key) <= 64:
+                pairs[(key, item.category)] = pairs.get((key, item.category), 0) + 1
+    if not pairs:
+        return 0
+    stmt = pg_insert(CategoryRule).values(
+        [{"keyword": k, "category": c, "hits": n} for (k, c), n in pairs.items()]
+    )
+    stmt = stmt.on_conflict_do_update(
+        constraint="uq_category_rules_keyword_category",
+        set_={"hits": CategoryRule.hits + stmt.excluded.hits},
+    )
+    db.execute(stmt)
+    db.commit()
+    return len(pairs)
+
+
+def list_rules(db: Session) -> list[CategoryRule]:
+    return db.query(CategoryRule).order_by(CategoryRule.category, CategoryRule.hits.desc(), CategoryRule.keyword).all()
+
+
+def delete_rule(db: Session, rule_id: int) -> None:
+    row = db.get(CategoryRule, rule_id)
+    if row:
+        db.delete(row)
+        db.commit()

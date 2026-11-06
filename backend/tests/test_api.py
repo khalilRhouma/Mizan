@@ -151,3 +151,66 @@ def test_settings_defaults_and_partial_patch(client):
 @pytest.mark.parametrize("body", [{"language": "de"}, {"theme": "blue"}, {"salary": -1}, {"fundSplits": {"commitments": 150}}])
 def test_invalid_settings_are_rejected(client, body):
     assert client.patch("/settings", json=body).status_code == 422
+
+
+# --- quick add ----------------------------------------------------------------
+
+def test_parse_returns_drafts_and_saves_nothing(client):
+    res = client.post("/quick-add/parse", json={"text": "3/11\ngas 60\nصيدلية 18\nbuy gift", "today": "2026-11-06"})
+    assert res.status_code == 200
+    drafts = res.json()["drafts"]
+    assert [(d["date"], d["amount"], d["category"], d["error"]) for d in drafts] == [
+        ("2026-11-03", 60, "car", None),
+        ("2026-11-03", 18, "health", None),
+        ("2026-11-03", None, None, "no_amount"),
+    ]
+    assert client.get("/transactions").json() == []
+
+
+def test_category_labels_work_as_words(client):
+    [d] = client.post("/quick-add/parse", json={"text": "ملابس 40", "today": "2026-11-06"}).json()["drafts"]
+    assert d["category"] == "clothes"
+    [d] = client.post("/quick-add/parse", json={"text": "extra 40", "today": "2026-11-06"}).json()["drafts"]
+    assert d["category"] is None  # "extra" belongs to two categories
+
+
+def test_learning_changes_the_next_guess(client):
+    text = {"text": "zorblax 25", "today": "2026-11-06"}
+    [d] = client.post("/quick-add/parse", json=text).json()["drafts"]
+    assert d["category"] is None and d["keywords"] == ["zorblax"]
+
+    res = client.post("/category-rules/learn", json={"items": [{"keywords": ["Zorblax"], "category": "leisure"}]})
+    assert res.json() == {"learned": 1}
+    [d] = client.post("/quick-add/parse", json=text).json()["drafts"]
+    assert (d["category"], d["categorySource"]) == ("leisure", "rule")
+
+    # Corrected twice to another category: the higher hit count wins.
+    for _ in range(2):
+        client.post("/category-rules/learn", json={"items": [{"keywords": ["zorblax"], "category": "needs"}]})
+    [d] = client.post("/quick-add/parse", json=text).json()["drafts"]
+    assert d["category"] == "needs"
+
+    rules = [r for r in client.get("/category-rules").json() if r["keyword"] == "zorblax"]
+    assert {(r["category"], r["hits"]) for r in rules} == {("leisure", 1), ("needs", 2)}
+    for r in rules:
+        assert client.delete(f"/category-rules/{r['id']}").status_code == 204
+    [d] = client.post("/quick-add/parse", json=text).json()["drafts"]
+    assert d["category"] is None
+
+
+def test_seed_rules_exist(client):
+    keywords = {r["keyword"] for r in client.get("/category-rules").json()}
+    assert {"essence", "steg", "صيدليه"} <= keywords
+
+
+@pytest.mark.parametrize(
+    "path, body",
+    [
+        ("/quick-add/parse", {"text": ""}),
+        ("/quick-add/parse", {"text": "x" * 20_001}),
+        ("/category-rules/learn", {"items": [{"keywords": ["gas"], "category": "unknown"}]}),
+        ("/category-rules/learn", {"items": [{"keywords": ["a", "b", "c", "d", "e"], "category": "car"}]}),
+    ],
+)
+def test_quick_add_validation(client, path, body):
+    assert client.post(path, json=body).status_code == 422

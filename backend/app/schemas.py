@@ -111,3 +111,52 @@ class SettingsOut(BaseModel):
     salary: float
     fundSplits: FundSplits
     cashBalanceOffset: float = 0
+
+
+# --- quick add ---------------------------------------------------------------
+
+class ParseIn(BaseModel):
+    text: Annotated[str, Field(min_length=1, max_length=20_000)]
+    today: date | None = None  # the phone's local date; server date if missing
+
+
+class DraftOut(BaseModel):
+    line: int
+    raw: str
+    date: date
+    amount: float | None
+    currency: str
+    paymentMethod: str
+    type: str
+    category: str | None
+    categorySource: str | None
+    notes: str
+    keywords: list[str]
+    error: str | None
+
+
+class ParseOut(BaseModel):
+    drafts: list[DraftOut]
+
+
+class LearnItem(BaseModel):
+    keywords: Annotated[list[Annotated[str, Field(min_length=2, max_length=64)]], Field(max_length=4)]
+    category: str
+
+    @field_validator("category")
+    @classmethod
+    def _known_category(cls, value: str) -> str:
+        if value not in CATEGORY_TYPES:
+            raise ValueError(f"unknown category '{value}'")
+        return value
+
+
+class LearnIn(BaseModel):
+    items: Annotated[list[LearnItem], Field(max_length=500)]
+
+
+class CategoryRuleOut(BaseModel):
+    id: int
+    keyword: str
+    category: str
+    hits: int

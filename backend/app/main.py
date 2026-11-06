@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from datetime import date
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +9,10 @@ from sqlalchemy.orm import Session
 from app.categories import CATEGORIES
 from app.config import settings
 from app.crud import (
+    delete_rule,
+    learn_rules,
+    list_rules,
+    parse_quick_add,
     delete_debt,
     delete_transaction,
     get_monthly_funds,
@@ -23,7 +28,16 @@ from app.crud import (
 )
 from app.database import engine, get_db
 from app.migrate import run_migrations
-from app.schemas import DebtIn, MonthlyFundsIn, SettingsIn, TransactionIn
+from app.schemas import (
+    CategoryRuleOut,
+    DebtIn,
+    LearnIn,
+    MonthlyFundsIn,
+    ParseIn,
+    ParseOut,
+    SettingsIn,
+    TransactionIn,
+)
 
 cors_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
 
@@ -124,3 +138,28 @@ def api_get_settings(db: Session = Depends(get_db)):
 @app.patch("/settings")
 def api_patch_settings(body: SettingsIn, db: Session = Depends(get_db)):
     return patch_settings(db, body)
+
+
+# --- quick add ---------------------------------------------------------------
+
+@app.post("/quick-add/parse", response_model=ParseOut)
+def api_quick_add_parse(body: ParseIn, db: Session = Depends(get_db)):
+    """Turn free text (one spend per line) into DRAFT transactions. Saves nothing."""
+    drafts = parse_quick_add(db, body.text, body.today or date.today())
+    return {"drafts": drafts}
+
+
+@app.post("/category-rules/learn")
+def api_learn_rules(body: LearnIn, db: Session = Depends(get_db)):
+    """Remember "word -> category" from saved drafts (adds hits)."""
+    return {"learned": learn_rules(db, body.items)}
+
+
+@app.get("/category-rules", response_model=list[CategoryRuleOut])
+def api_list_rules(db: Session = Depends(get_db)):
+    return list_rules(db)
+
+
+@app.delete("/category-rules/{rule_id}", status_code=204)
+def api_delete_rule(rule_id: int, db: Session = Depends(get_db)):
+    delete_rule(db, rule_id)
