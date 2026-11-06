@@ -1,11 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import QuickAddCard from '../components/QuickAddCard'
 import TransactionForm from '../components/TransactionForm'
 import TransactionList from '../components/TransactionList'
 import Card from '../components/ui/Card'
 import { CATEGORIES } from '../constants'
 import { t } from '../i18n'
+import { localDateString } from '../lib/dates'
 import { getTransactions } from '../services/storage'
+
+const FORM_OPEN_KEY = 'mizan.detailedFormOpen'
+
+function readFormOpen() {
+  try {
+    return localStorage.getItem(FORM_OPEN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 function normalizeSearchText(value) {
   return (value || '')
@@ -36,7 +48,11 @@ export default function LogPage({ lang }) {
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingTransaction, setEditingTransaction] = useState(null)
-  const [monthFilter, setMonthFilter] = useState('')
+  // The current month by default: the list stays short. 'All months' clears it.
+  const [monthFilter, setMonthFilter] = useState(() => localDateString().slice(0, 7))
+  // Quick add covers most entries, so the long form is folded by default.
+  const [formOpen, setFormOpen] = useState(readFormOpen)
+  const formRef = useRef(null)
   const [notesQuery, setNotesQuery] = useState('')
 
   // Keeps the current list visible while reloading (no flicker after a save).
@@ -58,9 +74,20 @@ export default function LogPage({ lang }) {
     refresh()
   }
 
+  function toggleForm() {
+    const next = !formOpen
+    setFormOpen(next)
+    try {
+      localStorage.setItem(FORM_OPEN_KEY, next ? '1' : '0')
+    } catch {
+      // private mode: just do not remember
+    }
+  }
+
   function handleEdit(tx) {
     setEditingTransaction(tx)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    // Wait for the form to render, then bring it into view.
+    requestAnimationFrame(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }
 
   const visibleTransactions = useMemo(
@@ -78,13 +105,34 @@ export default function LogPage({ lang }) {
   return (
     <div className="page-content-narrow page-stack">
       <QuickAddCard lang={lang} onSaved={refresh} />
-      <TransactionForm
-        key={editingTransaction?.id ?? 'new'}
-        lang={lang}
-        editingTransaction={editingTransaction}
-        onSaved={handleSaved}
-        onCancelEdit={() => setEditingTransaction(null)}
-      />
+      <div ref={formRef} className="scroll-mt-24 space-y-3">
+        {!editingTransaction && (
+          <button
+            type="button"
+            onClick={toggleForm}
+            aria-expanded={formOpen}
+            className="w-full flex items-center justify-between gap-3 rounded-card border border-border bg-surface shadow-card px-5 py-4 text-start hover:bg-hover/50 transition"
+          >
+            <span className="flex items-center gap-3 text-sm md:text-base font-medium text-text-primary">
+              <SlidersHorizontal className="w-[18px] h-[18px] text-text-muted" aria-hidden="true" />
+              {t(formOpen ? 'hideDetailedEntry' : 'detailedEntry', lang)}
+            </span>
+            <ChevronDown
+              className={`w-5 h-5 text-text-muted transition-transform ${formOpen ? 'rotate-180' : ''}`}
+              aria-hidden="true"
+            />
+          </button>
+        )}
+        {(formOpen || editingTransaction) && (
+          <TransactionForm
+            key={editingTransaction?.id ?? 'new'}
+            lang={lang}
+            editingTransaction={editingTransaction}
+            onSaved={handleSaved}
+            onCancelEdit={() => setEditingTransaction(null)}
+          />
+        )}
+      </div>
       <Card title={t('transactions', lang)}>
         <div className="grid gap-3 sm:grid-cols-2 mb-4">
           <div>
@@ -125,7 +173,11 @@ export default function LogPage({ lang }) {
           </div>
         </div>
         {loading ? (
-          <p className="text-center text-text-muted py-8 text-sm">…</p>
+          <div className="space-y-2" aria-busy="true">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="skeleton h-16" />
+            ))}
+          </div>
         ) : visibleTransactions.length === 0 ? (
           <p className="text-center text-text-muted py-8 text-sm md:text-base">
             {transactions.length === 0 ? t('noTransactions', lang) : t('noMatchingTransactions', lang)}
