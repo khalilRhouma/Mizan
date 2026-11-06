@@ -1,7 +1,12 @@
-from sqlalchemy import BigInteger, Boolean, Float, String
+from decimal import Decimal
+
+from sqlalchemy import BigInteger, Boolean, Float, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
+
+# Money: exact decimal with 3 places (TND has 3 decimals). Never use Float for money.
+Money = Numeric(12, 3)
 
 
 class Transaction(Base):
@@ -10,7 +15,7 @@ class Transaction(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     date: Mapped[str] = mapped_column(String(10), nullable=False)
     type: Mapped[str] = mapped_column(String(16), nullable=False)
-    amount: Mapped[float] = mapped_column(Float, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Money, nullable=False)
     currency: Mapped[str] = mapped_column(String(8), nullable=False)
     category: Mapped[str] = mapped_column(String(64), nullable=False)
     notes: Mapped[str] = mapped_column(String, default="")
@@ -25,9 +30,9 @@ class MonthlyFund(Base):
     __tablename__ = "monthly_funds"
 
     year_month: Mapped[str] = mapped_column(String(7), primary_key=True)
-    commitments: Mapped[float] = mapped_column(Float, default=0)
-    personal: Mapped[float] = mapped_column(Float, default=0)
-    investment: Mapped[float] = mapped_column(Float, default=0)
+    commitments: Mapped[Decimal] = mapped_column(Money, default=0)
+    personal: Mapped[Decimal] = mapped_column(Money, default=0)
+    investment: Mapped[Decimal] = mapped_column(Money, default=0)
 
 
 class Debt(Base):
@@ -36,7 +41,7 @@ class Debt(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     type: Mapped[str] = mapped_column(String(16), nullable=False)
     label: Mapped[str] = mapped_column(String(255), nullable=False)
-    amount: Mapped[float] = mapped_column(Float, nullable=False)
+    amount: Mapped[Decimal] = mapped_column(Money, nullable=False)
     currency: Mapped[str] = mapped_column(String(8), default="TND")
     date: Mapped[str] = mapped_column(String(10), nullable=False)
     deadline: Mapped[str] = mapped_column(String(10), default="")
@@ -51,8 +56,8 @@ class AppSettings(Base):
     id: Mapped[int] = mapped_column(primary_key=True, default=1)
     language: Mapped[str] = mapped_column(String(8), default="ar")
     theme: Mapped[str] = mapped_column(String(16), default="light")
-    salary: Mapped[float] = mapped_column(Float, default=0)
+    salary: Mapped[Decimal] = mapped_column(Money, default=0)
     fund_splits_commitments: Mapped[float] = mapped_column(Float, default=40)
     fund_splits_personal: Mapped[float] = mapped_column(Float, default=20)
     fund_splits_investment: Mapped[float] = mapped_column(Float, default=40)
-    cash_balance_offset: Mapped[float] = mapped_column(Float, default=0)
+    cash_balance_offset: Mapped[Decimal] = mapped_column(Money, default=0, server_default="0")
