@@ -169,7 +169,7 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
           required
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="input-field font-mono"
+          className="input-field tabular-nums"
         />
       </div>
 

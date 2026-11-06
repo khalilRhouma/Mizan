@@ -16,7 +16,7 @@ function CustomTooltip({ active, payload, label }) {
   return (
     <div className="bg-surface border border-border rounded-card p-3 text-sm shadow-card">
       <p className="text-text-muted mb-1">{label}</p>
-      <p className="text-accent font-mono">{formatAmount(payload[0].value)} د.ت</p>
+      <p className="text-accent tabular-nums">{formatAmount(payload[0].value)} د.ت</p>
     </div>
   )
 }

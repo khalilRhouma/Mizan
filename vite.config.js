@@ -54,7 +54,11 @@ export default defineConfig({
         ],
       },
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globPatterns: [
+          '**/*.{js,css,html,svg,png,ico}',
+          // Only the Latin and Arabic font files; other subsets load on demand.
+          '**/*-{latin,latin-ext,arabic}-*.woff2',
+        ],
       },
       devOptions: { enabled: false },
     }),

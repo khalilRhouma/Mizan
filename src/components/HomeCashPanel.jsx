@@ -56,13 +56,13 @@ export default function HomeCashPanel({ lang, summary, onBalanceCorrect }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-surface rounded-card border border-border p-4">
           <p className="text-xs text-text-muted">{t('withdrawnThisMonth', lang)}</p>
-          <p className="font-mono text-lg font-semibold text-warning mt-1">
+          <p className="tabular-nums text-lg font-semibold text-warning mt-1">
             {formatAmount(summary.withdrawn)} د.ت
           </p>
         </div>
         <div className="bg-surface rounded-card border border-border p-4">
           <p className="text-xs text-text-muted">{t('spentFromCash', lang)}</p>
-          <p className="font-mono text-lg font-semibold text-warning mt-1">
+          <p className="tabular-nums text-lg font-semibold text-warning mt-1">
             {formatAmount(summary.spent)} د.ت
           </p>
         </div>
@@ -95,21 +95,21 @@ export default function HomeCashPanel({ lang, summary, onBalanceCorrect }) {
                     cancelEdit()
                   }
                 }}
-                className={`font-mono text-lg font-semibold bg-transparent border-b border-border outline-none w-full max-w-[10rem] ${
+                className={`tabular-nums text-lg font-semibold bg-transparent border-b border-border outline-none w-full max-w-[10rem] ${
                   Number(draft) >= 0 || draft === '' || Number.isNaN(Number(draft))
                     ? 'text-success'
                     : 'text-danger'
                 }`}
                 aria-label={t('editBalance', lang)}
               />
-              <span className="font-mono text-lg font-semibold text-text-muted">د.ت</span>
+              <span className="tabular-nums text-lg font-semibold text-text-muted">د.ت</span>
             </div>
           ) : (
             <button
               type="button"
               onClick={startEdit}
               title={t('editBalance', lang)}
-              className={`font-mono text-lg font-semibold mt-1 cursor-pointer text-start ${
+              className={`tabular-nums text-lg font-semibold mt-1 cursor-pointer text-start ${
                 summary.balance >= 0 ? 'text-success' : 'text-danger'
               }`}
             >

@@ -58,7 +58,7 @@ export default function YearPage({ lang }) {
             max="2100"
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            className="input-field w-32 font-mono"
+            className="input-field w-32 tabular-nums"
           />
         </div>
       </div>

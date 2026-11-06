@@ -1,3 +1,8 @@
+// Colors come from CSS variables (light/dark). color-mix makes opacity
+// modifiers like bg-accent/10 work with them.
+const withAlpha = (name) =>
+  `color-mix(in srgb, var(${name}) calc(<alpha-value> * 100%), transparent)`
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
@@ -5,33 +10,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: 'var(--color-canvas)',
-        surface: 'var(--color-surface)',
-        'surface-elevated': 'var(--color-surface-elevated)',
-        border: 'var(--color-border)',
-        ink: 'var(--color-ink)',
-        cream: 'var(--color-cream)',
-        accent: 'var(--color-accent)',
-        danger: 'var(--color-danger)',
-        success: 'var(--color-success)',
-        warning: 'var(--color-warning)',
-        'text-primary': 'var(--color-text)',
-        'text-muted': 'var(--color-text-muted)',
-        hover: 'var(--color-hover)',
-        'link-blue': 'var(--color-link)',
+        primary: withAlpha('--color-canvas'),
+        surface: withAlpha('--color-surface'),
+        'surface-elevated': withAlpha('--color-surface-elevated'),
+        border: withAlpha('--color-border'),
+        ink: withAlpha('--color-ink'),
+        cream: withAlpha('--color-cream'),
+        accent: withAlpha('--color-accent'),
+        danger: withAlpha('--color-danger'),
+        success: withAlpha('--color-success'),
+        warning: withAlpha('--color-warning'),
+        'text-primary': withAlpha('--color-text'),
+        'text-muted': withAlpha('--color-text-muted'),
+        hover: withAlpha('--color-hover'),
+        'link-blue': withAlpha('--color-link'),
       },
       fontFamily: {
-        sans: ['"Sofia Sans"', 'Arial', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        // Inter has no Arabic letters, so Arabic text uses IBM Plex Sans Arabic.
+        sans: ['"Inter Variable"', '"IBM Plex Sans Arabic"', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        card: '40px',
-        btn: '20px',
+        card: '24px',
+        btn: '14px',
         pill: '999px',
       },
       boxShadow: {
         nav: 'var(--shadow-nav)',
         card: 'var(--shadow-card)',
+        float: 'var(--shadow-float)',
       },
       letterSpacing: {
         headline: '-0.02em',

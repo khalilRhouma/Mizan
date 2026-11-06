@@ -96,7 +96,7 @@ export default function SavingsFundsForm({
             step="0.001"
             value={funds.commitments}
             onChange={(e) => handleAmountChange('commitments', e.target.value)}
-            className="input-field font-mono"
+            className="input-field tabular-nums"
           />
         </div>
         <div>
@@ -107,7 +107,7 @@ export default function SavingsFundsForm({
             step="0.001"
             value={funds.personal}
             onChange={(e) => handleAmountChange('personal', e.target.value)}
-            className="input-field font-mono"
+            className="input-field tabular-nums"
           />
         </div>
         <div>
@@ -118,7 +118,7 @@ export default function SavingsFundsForm({
             step="0.001"
             value={funds.investment}
             onChange={(e) => handleAmountChange('investment', e.target.value)}
-            className="input-field font-mono"
+            className="input-field tabular-nums"
           />
         </div>
         <button type="submit" className="w-full btn-primary">

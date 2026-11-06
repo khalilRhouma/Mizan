@@ -77,7 +77,7 @@ export default function TransactionList({ lang, transactions, editingId, onEdit,
               {tx.notes && <p className="text-xs md:text-sm text-text-muted/70 truncate">{tx.notes}</p>}
             </div>
             <span
-              className={`font-mono text-sm md:text-base font-semibold whitespace-nowrap min-w-[5.5rem] text-end shrink-0 ${
+              className={`tabular-nums text-sm md:text-base font-semibold whitespace-nowrap min-w-[5.5rem] text-end shrink-0 ${
                 isWithdrawal ? 'text-warning' : isIncome ? 'text-success' : 'text-danger'
               }`}
             >

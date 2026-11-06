@@ -8,7 +8,7 @@ function CustomTooltip({ active, payload, lang }) {
   return (
     <div className="bg-surface border border-border rounded-card p-3 text-sm shadow-card">
       <p className="text-text-primary">{getCategoryLabel(item.key, lang)}</p>
-      <p className="text-accent font-mono">{formatAmount(item.value)} د.ت</p>
+      <p className="text-accent tabular-nums">{formatAmount(item.value)} د.ت</p>
     </div>
   )
 }

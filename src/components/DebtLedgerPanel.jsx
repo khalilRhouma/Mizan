@@ -114,7 +114,7 @@ export default function DebtLedgerPanel({ lang, type, entries, onChanged }) {
                   {entry.notes && <p className="text-xs text-text-muted/70">{entry.notes}</p>}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="font-mono text-sm font-semibold text-text-primary">
+                  <span className="tabular-nums text-sm font-semibold text-text-primary">
                     {formatAmount(entry.amount)} {getCurrencySymbol(entry.currency)}
                   </span>
                   <button type="button" onClick={() => startEdit(entry)} className="btn-accent-ghost">
@@ -167,7 +167,7 @@ export default function DebtLedgerPanel({ lang, type, entries, onChanged }) {
               required
               value={form.amount}
               onChange={(e) => updateField('amount', e.target.value)}
-              className="input-field font-mono"
+              className="input-field tabular-nums"
             />
           </div>
           <div>

@@ -17,7 +17,7 @@ export default function CardPaymentsPanel({ lang, eurTxns, eurSum, onSettle, set
                 {getCategoryLabel(tx.category, lang)} — {tx.date}
                 {tx.notes && <span className="block truncate text-xs text-text-muted/70">{tx.notes}</span>}
               </span>
-              <span className="font-mono font-medium text-accent shrink-0">
+              <span className="tabular-nums font-medium text-accent shrink-0">
                 {formatAmount(tx.amount)} {getCurrencySymbol('EUR')}
               </span>
             </li>
@@ -26,7 +26,7 @@ export default function CardPaymentsPanel({ lang, eurTxns, eurSum, onSettle, set
       )}
       <div className="flex justify-between border-t border-border pt-2 mt-2 font-semibold text-sm">
         <span>{t('total', lang)}</span>
-        <span className="font-mono text-accent">
+        <span className="tabular-nums text-accent">
           {formatAmount(eurSum)} {getCurrencySymbol('EUR')}
         </span>
       </div>

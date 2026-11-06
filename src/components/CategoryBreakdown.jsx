@@ -16,7 +16,7 @@ function CategorySection({ lang, type, grouped, bankTotal, cashTotal }) {
         return (
           <div key={cat.key} className="flex justify-between text-sm md:text-base py-1 md:py-1.5 data-table-row px-1">
             <span className="text-text-muted">{lang === 'en' ? cat.en : cat.ar}</span>
-            <span className="font-mono font-medium text-text-primary">{formatAmount(amount)} د.ت</span>
+            <span className="tabular-nums font-medium text-text-primary">{formatAmount(amount)} د.ت</span>
           </div>
         )
       })}
@@ -25,20 +25,20 @@ function CategorySection({ lang, type, grouped, bankTotal, cashTotal }) {
           {bankTotal > 0 && (
             <div className="flex justify-between">
               <span>{t('bankSubtotal', lang)}</span>
-              <span className="font-mono">{formatAmount(bankTotal)} د.ت</span>
+              <span className="tabular-nums">{formatAmount(bankTotal)} د.ت</span>
             </div>
           )}
           {cashTotal > 0 && (
             <div className="flex justify-between">
               <span>{t('cashSubtotal', lang)}</span>
-              <span className="font-mono">{formatAmount(cashTotal)} د.ت</span>
+              <span className="tabular-nums">{formatAmount(cashTotal)} د.ت</span>
             </div>
           )}
         </div>
       )}
       <div className="flex justify-between border-t border-border pt-2 mt-2 font-semibold text-sm md:text-base">
         <span>{type === 'income' ? t('totalIncome', lang) : t('totalExpenses', lang)}</span>
-        <span className={`font-mono ${type === 'income' ? 'text-success' : 'text-danger'}`}>
+        <span className={`tabular-nums ${type === 'income' ? 'text-success' : 'text-danger'}`}>
           {formatAmount(total)} د.ت
         </span>
       </div>

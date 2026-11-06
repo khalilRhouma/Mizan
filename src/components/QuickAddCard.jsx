@@ -259,7 +259,7 @@ function DraftRow({ lang, draft, onChange, onRemove }) {
           value={draft.amount}
           onChange={(e) => onChange({ amount: e.target.value })}
           aria-label={t('amount', lang)}
-          className={`input-field font-mono md:col-span-2 ${status === 'noAmount' ? 'ring-1 ring-danger' : ''}`}
+          className={`input-field tabular-nums md:col-span-2 ${status === 'noAmount' ? 'ring-1 ring-danger' : ''}`}
         />
         <select
           value={draft.type}

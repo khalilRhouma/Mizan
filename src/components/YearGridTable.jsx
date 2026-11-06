@@ -13,9 +13,9 @@ function rowTotal(values) {
 }
 
 function AmountCell({ value }) {
-  if (value === 0) return <td className="px-2 py-2 text-center font-mono text-text-muted/40">—</td>
+  if (value === 0) return <td className="px-2 py-2 text-center tabular-nums text-text-muted/40">—</td>
   return (
-    <td className="px-2 py-2 text-center font-mono text-sm text-text-primary whitespace-nowrap">
+    <td className="px-2 py-2 text-center tabular-nums text-sm text-text-primary whitespace-nowrap">
       {formatAmount(value)}
     </td>
   )
@@ -65,7 +65,7 @@ export default function YearGridTable({ lang, year, transactions, monthlyFundsLi
           {months.map((ym) => (
             <AmountCell key={ym} value={values[ym] ?? 0} />
           ))}
-          <td className="px-3 py-2 text-center font-mono text-sm font-semibold text-text-primary border-s border-border">
+          <td className="px-3 py-2 text-center tabular-nums text-sm font-semibold text-text-primary border-s border-border">
             {formatAmount(total)}
           </td>
         </tr>
@@ -83,7 +83,7 @@ export default function YearGridTable({ lang, year, transactions, monthlyFundsLi
         {values.map((v, i) => (
           <AmountCell key={months[i]} value={v} />
         ))}
-        <td className={`px-3 py-2 text-center font-mono text-sm border-s border-border ${accent}`}>
+        <td className={`px-3 py-2 text-center tabular-nums text-sm border-s border-border ${accent}`}>
           {formatAmount(total)}
         </td>
       </tr>
@@ -146,7 +146,7 @@ export default function YearGridTable({ lang, year, transactions, monthlyFundsLi
                 {values.map((v, i) => (
                   <AmountCell key={months[i]} value={v} />
                 ))}
-                <td className="px-3 py-2 text-center font-mono text-sm font-semibold text-accent border-s border-border">
+                <td className="px-3 py-2 text-center tabular-nums text-sm font-semibold text-accent border-s border-border">
                   {formatAmount(total)}
                 </td>
               </tr>
