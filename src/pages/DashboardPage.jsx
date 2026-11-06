@@ -4,7 +4,7 @@ import FundBalanceChart from '../components/charts/FundBalanceChart'
 import IncomeExpenseChart from '../components/charts/IncomeExpenseChart'
 import SavingsAreaChart from '../components/charts/SavingsAreaChart'
 import Card from '../components/ui/Card'
-import KpiCard from '../components/ui/KpiCard'
+import MonthSummaryCards from '../components/MonthSummaryCards'
 import { t } from '../i18n'
 import {
   fundCumulativeSeries,
@@ -127,11 +127,7 @@ export default function DashboardPage({ lang }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <KpiCard label={t('totalIncome', lang)} amount={kpiTotals.incomeTND} accent="success" />
-        <KpiCard label={t('totalExpenses', lang)} amount={kpiTotals.expenseTND} accent="danger" />
-        <KpiCard label={t('netSavings', lang)} amount={kpiTotals.netTND} accent="accent" />
-      </div>
+      <MonthSummaryCards lang={lang} totals={kpiTotals} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <Card className="lg:col-span-8" title={t('incomeVsExpense', lang)}>
