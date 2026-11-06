@@ -92,11 +92,52 @@ conda activate finance-system
 pip install -r backend/requirements.txt
 ```
 
+> **Port 5432 conflict:** if you also run a local Postgres (e.g. Homebrew), it
+> answers on `localhost:5432` before Docker does. Stop it, or set
+> `POSTGRES_PORT=5433` in `.env` and use that port in `DATABASE_URL`.
+
+### Database migrations (Alembic)
+
+The schema is managed by [Alembic](https://alembic.sqlalchemy.org/). The API runs
+`alembic upgrade head` on every start (`backend/app/migrate.py`), so a normal
+`docker compose up` is enough. An old database without migration history is
+detected and upgraded automatically.
+
+To change the schema:
+
+```bash
+cd backend
+# 1. Edit app/models.py
+# 2. Generate a migration, then READ and fix it before committing
+.venv/bin/alembic revision --autogenerate -m "short description"
+# 3. Apply it (or just restart the API)
+.venv/bin/alembic upgrade head
+```
+
+Money columns use `NUMERIC(12, 3)` (never float). Take a backup before a big migration:
+`docker exec finance-backup /backup.sh`.
+
+### Tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest
+```
+
+Tests start a throwaway Postgres in Docker (testcontainers), so Docker must be
+running. They never touch your real database. Frontend checks:
+`npm run lint` and `node --test src/lib/*.test.mjs`.
+
 ## Project structure
 
 ```
 finance-system/
 ├── backend/           # FastAPI + SQLAlchemy
+│   ├── app/           # API code (categories.py = category list)
+│   ├── alembic/       # database migrations
+│   └── tests/         # pytest suite
+├── scripts/           # seed_demo.py (fake data for demos)
 ├── src/               # React frontend
 ├── docker-compose.yml
 ├── Dockerfile.web     # Production frontend (nginx)

@@ -46,26 +46,31 @@ Why: There are 11 uncommitted files and **no database backup**. One broken Docke
 
 Why: The quick-add feature needs categories on the backend and a safe way to add new tables.
 
-- [ ] **Alembic** for schema changes.
+- [x] **Alembic** for schema changes.
       - Make a baseline migration from the current models (`backend/app/models.py`).
       - Remove the raw `ALTER TABLE` calls and `create_all` from `lifespan` in `backend/app/main.py`.
       - Run `alembic upgrade head` when the API container starts.
-- [ ] **Money as `Numeric(12, 3)`** instead of `Float` (TND has 3 decimals), for
+- [x] **Money as `Numeric(12, 3)`** instead of `Float` (TND has 3 decimals), for
       `Transaction.amount`, `Debt.amount`, `MonthlyFund.*`, `AppSettings.salary`, `cash_balance_offset`.
-- [ ] **Validation** in `backend/app/schemas.py`:
+- [x] **Validation** in `backend/app/schemas.py`:
       - `date: datetime.date`, `type: Literal["income","expense"]`, `currency: Literal["TND","EUR"]`,
         `paymentMethod: Literal["cash","bank","card"]`, `amount > 0`, `category` must be a known key.
-- [ ] **Categories on the backend**: move the list from `src/constants.js` to `backend/app/categories.py`
+- [x] **Categories on the backend**: move the list from `src/constants.js` to `backend/app/categories.py`
       and add `GET /categories`. The frontend reads it from there (keep the labels `ar` / `en`).
-- [ ] Remove the `except Exception` in `GET /settings` (it hides real errors).
-- [ ] `saveSettings` in `src/services/storage.js`: send only the changed fields (no GET first).
-- [ ] Fix the 5 existing ESLint errors (`react-hooks/set-state-in-effect` in TransactionForm and the 4 pages),
+- [x] Remove the `except Exception` in `GET /settings` (it hides real errors).
+- [x] `saveSettings` in `src/services/storage.js`: send only the changed fields (no GET first).
+- [x] Fix the 5 existing ESLint errors (`react-hooks/set-state-in-effect` in TransactionForm and the 4 pages),
       so `npm run lint` is clean.
-- [ ] **Tests**: `pytest` + FastAPI `TestClient` for the main endpoints, run against a test Postgres.
+- [x] **Tests**: `pytest` + FastAPI `TestClient` for the main endpoints, run against a test Postgres.
 
 Packages: `alembic`, `pytest`, `httpx` (needed by TestClient).
 
 **Done when:** `pytest` passes, old data still loads, and bad input returns HTTP 422.
+
+✅ **Phase 1 done (2026-11-06).** 36 backend tests pass (throwaway Postgres via testcontainers),
+ESLint is clean, and the real database was migrated with identical counts and totals.
+Notes: migrations run on API start (`app/migrate.py`); a local Homebrew Postgres on port 5432
+shadows the Docker one (see README).
 
 ---
 
@@ -171,8 +176,10 @@ Pick from this list after Phase 3, one at a time:
 |---|---|---|
 | 2026-11-06 | — | Roadmap created |
 | 2026-11-06 | 0 | Committed pending work, daily DB backup + restore docs, local-date fix |
+| 2026-11-06 | 0 | README screenshots replaced with fake demo data (`scripts/seed_demo.py`), old ones purged from git history |
+| 2026-11-06 | 1 | Alembic, NUMERIC money, input validation, `GET /categories`, small fixes, clean lint, pytest suite |
 
 ---
 
 ## Next step
-Start Phase 1, one step at a time.
+Start Phase 2 (quick add and note import).

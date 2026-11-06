@@ -92,11 +92,44 @@ conda activate finance-system
 pip install -r backend/requirements.txt
 ```
 
+> **تعارض المنفذ 5432:** إذا كان لديك Postgres محلي (مثل Homebrew) فهو يجيب على `localhost:5432` قبل Docker. أوقفه، أو ضع `POSTGRES_PORT=5433` في `.env` واستعمل هذا المنفذ في `DATABASE_URL`.
+
+### ترحيل قاعدة البيانات (Alembic)
+
+يُدار هيكل قاعدة البيانات بـ [Alembic](https://alembic.sqlalchemy.org/). الـ API يشغّل `alembic upgrade head` عند كل تشغيل (`backend/app/migrate.py`)، فيكفي `docker compose up`. قاعدة البيانات القديمة بدون سجل ترحيل تُكتشف وتُحدَّث تلقائياً.
+
+لتغيير الهيكل:
+
+```bash
+cd backend
+# 1. عدّل app/models.py
+# 2. أنشئ ملف ترحيل، ثم اقرأه وصحّحه قبل الـ commit
+.venv/bin/alembic revision --autogenerate -m "وصف قصير"
+# 3. طبّقه (أو أعد تشغيل الـ API)
+.venv/bin/alembic upgrade head
+```
+
+المبالغ المالية من نوع `NUMERIC(12, 3)` (وليس float). خذ نسخة احتياطية قبل أي ترحيل كبير: `docker exec finance-backup /backup.sh`.
+
+### الاختبارات
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest
+```
+
+الاختبارات تشغّل Postgres مؤقتاً في Docker (testcontainers)، لذا يجب أن يعمل Docker. لا تلمس قاعدة بياناتك الحقيقية أبداً. فحوصات الواجهة: `npm run lint` و `node --test src/lib/*.test.mjs`.
+
 ## هيكل المشروع
 
 ```
 finance-system/
 ├── backend/           # FastAPI + SQLAlchemy
+│   ├── app/           # كود الـ API (categories.py = قائمة الفئات)
+│   ├── alembic/       # ملفات ترحيل قاعدة البيانات
+│   └── tests/         # اختبارات pytest
+├── scripts/           # seed_demo.py (بيانات وهمية للعرض)
 ├── src/               # واجهة React
 ├── docker-compose.yml
 ├── Dockerfile.web     # واجهة الإنتاج (nginx)
