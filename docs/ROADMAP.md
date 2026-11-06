@@ -150,6 +150,13 @@ Packages:
 
 **Done when:** with the Mac **off**, I add an expense on the phone; when the Mac is back on, it appears in the app.
 
+✅ **Phase 3 code done (2026-11-06).** Tested in the browser with the API stopped: the app opens
+from cache, a save waits on the phone (badge ⏳ 1), and arrives once when the API is back
+(automatically on open, or with "إرسال الآن"). New wallet + coin icon.
+⏳ **Left for you (10 min, once):** install Tailscale and run `tailscale serve --bg 8080`,
+then install the app from Chrome — see [PHONE_SETUP.md](PHONE_SETUP.md).
+Notes: quick add needs the server to read text (offline: use the form; the text is kept).
+
 ---
 
 ## Phase 4 — Smarter app (rules, no AI)
@@ -190,7 +197,7 @@ Ordered by value for daily use. Pick them one at a time.
 **Phone (with Phase 3)**
 - [ ] **Bottom tab bar on small screens.** The top nav takes 2 rows on a phone.
 - [ ] Bigger touch targets for Edit/Delete (they are small text links now).
-- [ ] Note: `crypto.randomUUID()` needs HTTPS or localhost. Phase 3 must use the Tailscale
+- [x] Note: `crypto.randomUUID()` needs HTTPS or localhost. Phase 3 must use the Tailscale
       HTTPS address, or saving fails on the phone.
 
 **Dashboard**
@@ -234,9 +241,12 @@ Ordered by value for daily use. Pick them one at a time.
 | 2026-11-06 | 0 | README screenshots replaced with fake demo data (`scripts/seed_demo.py`), old ones purged from git history |
 | 2026-11-06 | 1 | Alembic, NUMERIC money, input validation, `GET /categories`, small fixes, clean lint, pytest suite |
 | 2026-11-06 | 2 | Quick-add parser (rules + dateparser + rapidfuzz), learned words, quick-add card, UX review |
+| 2026-11-06 | UX | Toasts (save/delete errors), undo delete, remembered category, decimal keypad, thousands separator; local card = bank |
+| 2026-11-06 | 3 | PWA (install, wallet icon, shortcut), offline cache + save queue, Tailscale guide, restart policies |
 | 2026-11-06 | 2 | Tunisian dialect: أول البارح, dialect weekdays, millimes, بالكارطة; ~140 Derja seed words; tests mostly in Arabic/Derja (122 backend tests) |
 
 ---
 
 ## Next step
-Test quick add with a real note (Phase 2 goal), then the "Fix soon" UX items, then Phase 3.
+1. You: set up the phone (docs/PHONE_SETUP.md) and test quick add with a real note.
+2. Then the remaining UX items (Log list by day, bottom tab bar on phone, dashboard), then Phase 4.

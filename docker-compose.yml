@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:16-alpine
     container_name: finance-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-finance}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-finance}
@@ -19,6 +20,7 @@ services:
   api:
     build: ./backend
     container_name: finance-api
+    restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-finance}:${POSTGRES_PASSWORD:-finance}@db:5432/${POSTGRES_DB:-finance}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173}
@@ -61,6 +63,7 @@ services:
       context: .
       dockerfile: Dockerfile.web
     container_name: finance-web
+    restart: unless-stopped
     ports:
       - "${WEB_PORT:-8080}:80"
     depends_on:

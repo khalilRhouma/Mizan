@@ -42,6 +42,11 @@ Press **Enter** (or **Read**). Each line becomes a draft you can fix, then **Sav
 A date-only line applies to the lines below. `€` means card/EUR. The app learns
 "word → category" each time you save; see **Learned words** to delete wrong ones.
 
+## Use it on your phone
+
+Free and private with Tailscale + an installable app that works when the Mac is off.
+See [docs/PHONE_SETUP.md](docs/PHONE_SETUP.md).
+
 ## Stack
 
 | Layer | Technology |
