@@ -48,9 +48,15 @@ export const DONUT_COLORS = [
 
 const amountFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })
 
-/** 2800 -> "2,800.000" (3 decimals for millimes, comma every 3 digits). */
+/**
+ * 2800 -> "2,800.000" (3 decimals for millimes, comma every 3 digits).
+ * Negative numbers are wrapped in invisible LTR marks (U+2066 … U+2069), so
+ * the minus sign stays before the digits inside Arabic (RTL) text.
+ */
 export function formatAmount(n) {
-  return amountFormat.format(Number(n) || 0)
+  const value = Number(n) || 0
+  const text = amountFormat.format(value)
+  return value < 0 ? `\u2066${text}\u2069` : text
 }
 
 export function shortMonthLabel(yearMonth, lang) {

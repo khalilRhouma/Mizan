@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { formatMonthLabel } from '../constants'
 import CardPaymentsPanel from '../components/CardPaymentsPanel'
 import CategoryBreakdown from '../components/CategoryBreakdown'
 import DebtLedgerPanel from '../components/DebtLedgerPanel'
 import HomeCashPanel from '../components/HomeCashPanel'
-import MonthSummaryCards from '../components/MonthSummaryCards'
+import MonthHero from '../components/MonthHero'
+import MonthSwitcher from '../components/MonthSwitcher'
 import SavingsFundsForm from '../components/SavingsFundsForm'
-import Card from '../components/ui/Card'
 import { t } from '../i18n'
 import {
   filterDebtsForMonth,
@@ -28,6 +27,7 @@ import {
   saveSettings,
   settleCardPayments,
 } from '../services/storage'
+import { previousYearMonth } from '../lib/dates'
 
 function currentYearMonth() {
   const now = new Date()
@@ -77,6 +77,10 @@ export default function MonthlyPage({ lang }) {
 
   const totals = useMemo(
     () => monthlyTotals(transactions, yearMonth),
+    [transactions, yearMonth],
+  )
+  const previousTotals = useMemo(
+    () => monthlyTotals(transactions, previousYearMonth(yearMonth)),
     [transactions, yearMonth],
   )
   const incomeByCategory = useMemo(
@@ -187,23 +191,11 @@ export default function MonthlyPage({ lang }) {
 
   return (
     <div className="page-content-narrow page-stack">
-      <div className="sticky top-24 z-10 bg-primary/95 backdrop-blur-sm py-2 -mx-4 px-4 border-b border-border">
-        <Card>
-          <label htmlFor="month" className="label-field">
-            {t('month', lang)}
-          </label>
-          <input
-            id="month"
-            type="month"
-            value={yearMonth}
-            onChange={(e) => setYearMonth(e.target.value)}
-            className="input-field"
-          />
-          <p className="text-sm md:text-base text-text-muted mt-2">{formatMonthLabel(yearMonth, lang)}</p>
-        </Card>
+      <div className="sticky top-[76px] md:top-[92px] z-10 flex justify-center">
+        <MonthSwitcher lang={lang} value={yearMonth} onChange={setYearMonth} />
       </div>
 
-      <MonthSummaryCards lang={lang} totals={totals} />
+      <MonthHero lang={lang} yearMonth={yearMonth} totals={totals} previousTotals={previousTotals} />
 
       <CategoryBreakdown
         lang={lang}
