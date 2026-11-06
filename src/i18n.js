@@ -1,6 +1,6 @@
 const dictionary = {
   ar: {
-    appTitle: 'نظام تتبع المالية',
+    appTitle: 'ميزان',
     saved: 'تم الحفظ',
     updated: 'تم التعديل',
     saveFailed: 'لم يتم الحفظ. تأكد من المبلغ والتاريخ، أو أن الخادم يعمل.',
@@ -130,7 +130,7 @@ const dictionary = {
     allFunds: 'جميع الأموال',
   },
   en: {
-    appTitle: 'Personal Finance Tracker',
+    appTitle: 'Mizan',
     saved: 'Saved',
     updated: 'Updated',
     saveFailed: 'Not saved. Check the amount and date, or that the server is running.',

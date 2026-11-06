@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { getCategoriesByType, getCategoryLabel } from '../constants'
 import { t } from '../i18n'
@@ -74,10 +75,14 @@ export default function QuickAddCard({ lang, onSaved }) {
     storeText(value)
   }
 
-  // Home-screen shortcut "Add expense" opens /log?quick=1: focus the box.
+  // Home-screen shortcut and the "+" tab button open /log?quick=…: focus the box.
+  const { search } = useLocation()
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).has('quick')) textareaRef.current?.focus()
-  }, [])
+    if (!new URLSearchParams(search).has('quick')) return
+    const box = textareaRef.current
+    box?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    box?.focus({ preventScroll: true })
+  }, [search])
   const [drafts, setDrafts] = useState([])
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState(null) // { kind: 'success' | 'error', text }
