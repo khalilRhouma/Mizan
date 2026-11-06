@@ -90,11 +90,12 @@ Why: Turn "write a note, type it again later" into "type once, done".
 ### 2.3 Parser rules (no AI)
 | Part | Rule |
 |---|---|
-| Amount | First number in the line (`60`, `45.500`, `45,5`) |
+| Amount | Number with a currency mark (`60dt`, `12€`), else next to a currency word, else the largest number (`45.500`, `45,5`) |
 | Currency | `€` / `eur` → EUR + card. Default TND |
-| Date | `today`, `yesterday`, `اليوم`, `أمس`, `hier`, `3/11`, `03-11-2026`. Default today |
-| Category | Keyword table (see 2.4), then fuzzy match for typos (`essance` → car) |
+| Date | `today`, `yesterday`, `اليوم`, `أمس`, `البارحة`, `hier`, weekdays, `3/11`, `03-11-2026`, `3 nov`. Never in the future. A date-only line applies to the lines below. Default today |
+| Category | Keyword table (see 2.4) + category names, then fuzzy match for typos (`essance` → car) |
 | Notes | The remaining words |
+| Payment | `cash/نقد/كاش`, `carte/بطاقة` (→ EUR), `bank/بنك`. Default cash |
 | Type | Expense by default. `+` or words like `salary`, `راتب` → income |
 
 - Reuse the Arabic normalization from `normalizeSearchText` in `src/pages/LogPage.jsx`
@@ -103,9 +104,9 @@ Why: Turn "write a note, type it again later" into "type once, done".
 ### 2.4 It learns (simple "intelligence")
 - New table `category_rules (keyword, category, hits)`. Start with seed words:
   `gas, essence, بنزين, carburant → car`; `chemise, pantalon, ملابس → clothes`; …
-- When I save a draft and **change** its category, store the note words → new category.
+- Every saved draft adds +1 hit to its words → category (corrections included).
 - When rules disagree, the rule with the most `hits` wins.
-- Small "Rules" list in Settings to see and delete rules.
+- "Learned words" panel in the quick-add card to see and delete words (there is no Settings page).
 
 Packages:
 - **`dateparser`** (BSD) — dates in Arabic, French and English.
@@ -114,6 +115,11 @@ Packages:
 
 **Done when:** pasting my real 2-week note fills ≥ 80 % of rows with the right category and no wrong amounts.
 Parser has unit tests with real note lines.
+
+✅ **Phase 2 built (2026-11-06).** 138 seed words, 35 parser tests + API tests (84 backend tests).
+The quick-add card is the first card on the Log page; drafts are one editable block per line.
+⏳ **Left for you:** paste a real 2-week note and check the ≥ 80 % goal. Add missing words by
+saving (the app learns) — no code change needed.
 
 ---
 
@@ -157,6 +163,48 @@ Pick from this list after Phase 3, one at a time:
 
 ---
 
+## UX and UI recommendations (from the Phase 2 review)
+
+Ordered by value for daily use. Pick them one at a time.
+
+**Fix soon (small, high value)**
+- [ ] **Show save errors in the main form.** `TransactionForm` catches errors and shows nothing.
+      Since Phase 1 the API rejects bad input (422), so a failed save is now silent. Show a red message.
+- [ ] **Confirm before delete** in the transaction list (one tap deletes now, no undo).
+      Better: an "Undo" toast for 5 seconds instead of a dialog.
+- [ ] **Success feedback** after saving in the main form (short toast "Saved").
+- [ ] **Better default category** in the main form: today it is "Rent" for every new expense.
+      Use the last category used, or the most frequent one.
+- [ ] **Number keypad on phones:** add `inputMode="decimal"` to all amount fields
+      (only the quick-add card has it).
+- [ ] **Thousands separator:** show `2,800.000` instead of `2800.000` (`formatAmount` in
+      `src/lib/chartUtils.js`, use `Intl.NumberFormat`).
+
+**Log page**
+- [ ] **Group the list by day** with a day total ("Today", "Yesterday", "Mon 3 Nov"), and show
+      the current month by default instead of all transactions.
+- [ ] **Collapse the detailed form** behind a "Detailed entry" button. Quick add covers most cases,
+      and on a phone the form pushes the list far down.
+- [ ] Friendlier dates in the list (`أمس`, `3 nov.`) instead of `2026-11-03`.
+
+**Phone (with Phase 3)**
+- [ ] **Bottom tab bar on small screens.** The top nav takes 2 rows on a phone.
+- [ ] Bigger touch targets for Edit/Delete (they are small text links now).
+- [ ] Note: `crypto.randomUUID()` needs HTTPS or localhost. Phase 3 must use the Tailscale
+      HTTPS address, or saving fails on the phone.
+
+**Dashboard**
+- [ ] Default chart range to the months that have data (12 months shows many empty bars).
+- [ ] KPI cards: compare with last month ("+12 % vs October").
+- [ ] Loading skeletons instead of "…".
+
+**Small polish**
+- [ ] `GET /monthly-funds/{month}` returns 404 when a month has no funds: return an empty
+      object instead, to remove console errors.
+- [ ] Status should not rely on color only (quick-add rows already add text; check other places).
+
+---
+
 ## Later / nice to have
 - [ ] Simple PIN login if the app is ever used outside Tailscale.
 - [ ] CSV export (for backup or a spreadsheet).
@@ -178,8 +226,9 @@ Pick from this list after Phase 3, one at a time:
 | 2026-11-06 | 0 | Committed pending work, daily DB backup + restore docs, local-date fix |
 | 2026-11-06 | 0 | README screenshots replaced with fake demo data (`scripts/seed_demo.py`), old ones purged from git history |
 | 2026-11-06 | 1 | Alembic, NUMERIC money, input validation, `GET /categories`, small fixes, clean lint, pytest suite |
+| 2026-11-06 | 2 | Quick-add parser (rules + dateparser + rapidfuzz), learned words, quick-add card, UX review |
 
 ---
 
 ## Next step
-Start Phase 2 (quick add and note import).
+Test quick add with a real note (Phase 2 goal), then the "Fix soon" UX items, then Phase 3.

@@ -25,6 +25,23 @@ Inspired by a personal Tunisian household expense sheet.
 
 ![Adding a transaction](screenshots/log-entry.png)
 
+## Quick add
+
+On the Log page, type one spend per line, or paste a whole note from your phone:
+
+```
+3/11
+essence 60
+pain et lait 4,2
+netflix 12.99€
+hier
+صيدلية 18
+```
+
+Press **Enter** (or **Read**). Each line becomes a draft you can fix, then **Save** them all.
+A date-only line applies to the lines below. `€` means card/EUR. The app learns
+"word → category" each time you save; see **Learned words** to delete wrong ones.
+
 ## Stack
 
 | Layer | Technology |
