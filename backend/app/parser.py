@@ -2,12 +2,15 @@
 
 Rules only, no AI. One line = one transaction. For each line:
 
-  amount    the number with a currency mark (60dt, 12€), else next to a
+  amount    the number with a currency mark (60dt, 12€, 7د), else next to a
             currency word, else the largest number. "45,5" = 45.5.
+            Millimes: "500 مليم" = 0.5, "1 دينار و 350 مليم" = 1.350.
             A leading "+" means income.
   currency  €, eur, euro, يورو -> EUR (paid by card). Default TND.
-  payment   cash/نقد/كاش, carte/card/بطاقة, bank/virement/بنك. Default cash.
-  date      today/hier/أمس, weekday names, 3/11, 03-11-2026, "3 nov"
+  payment   cash/نقد/كاش, carte/كارطة/بطاقة, bank/بنك/فيرمون (also with
+            بال: بالكارطة, بالبنك). Default cash.
+  date      today/hier/أمس/البارح/أول البارح, weekday names (also Tunisian:
+            الثنين, الحد, "نهار الخميس"), 3/11, 03-11-2026, "3 nov"
             (parsed by dateparser, day first, never in the future).
             A line with a date and no amount sets the date for the lines
             below it. Default: today.
@@ -34,10 +37,15 @@ from app.text import STOPWORDS, normalize
 
 _RELATIVE_DAYS = {
     "today": 0, "aujourd'hui": 0, "aujourdhui": 0, "auj": 0, "اليوم": 0,
-    "yesterday": 1, "hier": 1, "امس": 1, "البارحه": 1, "البارح": 1, "lbere7": 1,
+    "lyoum": 0, "elyoum": 0,
+    "yesterday": 1, "hier": 1, "امس": 1, "البارحه": 1, "البارح": 1,
+    "lbere7": 1, "lbera7": 1, "lbare7": 1, "lbarah": 1,
     "avant-hier": 2,
 }
-_RELATIVE_PAIRS = {("اول", "امس"): 2, ("avant", "hier"): 2, ("day", "before"): 2}
+_RELATIVE_PAIRS = {
+    ("اول", "امس"): 2, ("اول", "البارح"): 2, ("اول", "البارحه"): 2,
+    ("avant", "hier"): 2, ("day", "before"): 2,
+}
 
 _WEEKDAYS = {
     "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
@@ -45,6 +53,17 @@ _WEEKDAYS = {
     "الاثنين", "الإثنين", "الثلاثاء", "الاربعاء", "الخميس", "الجمعه", "السبت", "الاحد",
 }
 _WEEKDAYS = {normalize(w) for w in _WEEKDAYS}
+# Tunisian spellings -> the form dateparser knows.
+_WEEKDAY_ALIASES = {
+    normalize(k): normalize(v)
+    for k, v in {
+        "الثنين": "الاثنين", "ثنين": "الاثنين", "لثنين": "الاثنين",
+        "الثلاث": "الثلاثاء", "التلاث": "الثلاثاء", "التلاثاء": "الثلاثاء",
+        "الاربعا": "الاربعاء", "لربعا": "الاربعاء", "لربعاء": "الاربعاء",
+        "لخميس": "الخميس", "الجمعة": "الجمعه", "لحد": "الاحد", "الحد": "الاحد",
+    }.items()
+}
+_DAY_WORDS = {"نهار", "يوم", "nhar", "le", "on"}  # "نهار الخميس" = on Thursday
 
 _MONTH_PREFIXES = (
     "jan", "feb", "fev", "mar", "apr", "avr", "may", "mai", "jun", "juin", "jul", "juil",
@@ -53,18 +72,19 @@ _MONTH_PREFIXES = (
 )
 
 _EUR_WORDS = {"eur", "euro", "euros", "يورو", "اورو", "€"}
-_TND_WORDS = {"dt", "tnd", "dinar", "dinars", "دينار", "د.ت", "دت", "مليم", "millimes"}
+_TND_WORDS = {"dt", "tnd", "dinar", "dinars", "دينار", "دينارات", "دنانير", "د.ت", "دت", "د"}
+_MILLIME_WORDS = {"مليم", "ملاليم", "millimes", "millime", "mill"}
 _PAYMENT_WORDS = {
-    "cash": {"cash", "كاش", "نقد", "نقدا", "espece", "especes", "liquide"},
-    "card": {"card", "carte", "cb", "visa", "بطاقه"},
-    "bank": {"bank", "banque", "virement", "بنك", "تحويل"},
+    "cash": {"cash", "كاش", "نقد", "نقدا", "espece", "especes", "liquide", "cash"},
+    "card": {"card", "carte", "cb", "visa", "بطاقه", "كارطه", "كارت", "فيزا", "karta"},
+    "bank": {"bank", "banque", "virement", "بنك", "تحويل", "فيرمون", "فيرمان", "بانكه"},
 }
 
 _DATE_TOKEN_RE = re.compile(
     r"^(\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?|\d{4}-\d{1,2}-\d{1,2}|\d{1,2}\.\d{1,2}\.\d{2,4})$"
 )
 _AMOUNT_RE = re.compile(
-    r"^(?P<sign>[+-])?(?P<pre>€)?(?P<num>\d+(?:[.,]\d{1,3})?)(?P<suf>€|dt|tnd|eur|د\.?ت)?$"
+    r"^(?P<sign>[+-])?(?P<pre>€)?(?P<num>\d+(?:[.,]\d{1,3})?)(?P<suf>€|dt|tnd|eur|د\.?ت|د|مليم)?$"
 )
 _LIST_MARKER_RE = re.compile(r"^\s*(?:[-*•–]|\d+[.)])\s+")
 _EDGE_PUNCT = ",;:!?()[]\"'«»"
@@ -170,10 +190,13 @@ def _find_date(norm: list[str], used: set[int], today: date) -> date | None:
         if tok in _RELATIVE_DAYS:
             used.add(i)
             return today - timedelta(days=_RELATIVE_DAYS[tok])
-        if tok in _WEEKDAYS or _DATE_TOKEN_RE.match(tok):
-            parsed = _dateparse(tok, today)
+        weekday = _WEEKDAY_ALIASES.get(tok, tok)
+        if weekday in _WEEKDAYS or _DATE_TOKEN_RE.match(tok):
+            parsed = _dateparse(weekday, today)
             if parsed:
                 used.add(i)
+                if weekday in _WEEKDAYS and i > 0 and norm[i - 1] in _DAY_WORDS:
+                    used.add(i - 1)
                 return parsed
         if tok.isdigit() and i + 1 < len(norm) and norm[i + 1].startswith(_MONTH_PREFIXES):
             parsed = _dateparse(f"{tok} {norm[i + 1]}", today)
@@ -212,14 +235,15 @@ def _find_currency_and_payment(norm: list[str], used: set[int]) -> tuple[str | N
             used.add(i)
         else:
             for method, words in _PAYMENT_WORDS.items():
-                if tok in words:
+                if tok in words or _strip_article(tok) in words:
                     payment = method
                     used.add(i)
     return currency, payment
 
 
 def _find_amount(norm: list[str], used: set[int]) -> tuple[Decimal | None, str | None]:
-    candidates: list[tuple[int, int, Decimal, str | None]] = []  # (priority, index, value, sign)
+    # (priority, index, value, sign, is_millimes)
+    candidates: list[tuple[int, int, Decimal, str | None, bool]] = []
     for i, tok in enumerate(norm):
         if i in used:
             continue
@@ -232,14 +256,34 @@ def _find_amount(norm: list[str], used: set[int]) -> tuple[Decimal | None, str |
             continue
         if value <= 0:
             continue
-        marked = bool(m["pre"] or m["suf"])
+        next_tok = norm[i + 1] if i + 1 < len(norm) else ""
+        is_millimes = m["suf"] == "مليم" or next_tok in _MILLIME_WORDS
+        if is_millimes:
+            value = value / 1000
+            if next_tok in _MILLIME_WORDS:
+                used.add(i + 1)
+        marked = bool(m["pre"] or m["suf"]) or is_millimes
         near_currency = any(j in used and norm[j] in (_EUR_WORDS | _TND_WORDS) for j in (i - 1, i + 1))
         priority = 2 if marked else 1 if near_currency else 0
-        candidates.append((priority, i, value, m["sign"]))
+        candidates.append((priority, i, value, m["sign"], is_millimes))
     if not candidates:
         return None, None
-    priority, index, value, sign = max(candidates, key=lambda c: (c[0], c[2]))
+    priority, index, value, sign, is_millimes = max(candidates, key=lambda c: (c[0], not c[4], c[2]))
     used.add(index)
+    # "1 دينار و 350 مليم": dinars and millimes written apart -> add them.
+    # The dinar part must be marked (followed by a dinar word) unless it was
+    # already the best candidate.
+    for _, j, extra, _, other_is_millimes in candidates:
+        if other_is_millimes == is_millimes or abs(j - index) > 4:
+            continue
+        dinar_index = j if is_millimes else index
+        dinar_is_marked = dinar_index + 1 < len(norm) and norm[dinar_index + 1] in _TND_WORDS
+        if is_millimes and not dinar_is_marked:
+            continue
+        value += extra
+        used.add(j)
+        used.update(k for k in range(min(index, j) + 1, max(index, j)) if norm[k] in {"و", "w", "et"})
+        break
     return value, sign
 
 
