@@ -188,22 +188,22 @@ Ordered by value for daily use. Pick them one at a time.
       `src/lib/chartUtils.js`, use `Intl.NumberFormat`).
 
 **Log page**
-- [ ] **Group the list by day** with a day total ("Today", "Yesterday", "Mon 3 Nov"), and show
+- [x] **Group the list by day** with a day total ("Today", "Yesterday", "Mon 3 Nov"), and show
       the current month by default instead of all transactions.
-- [ ] **Collapse the detailed form** behind a "Detailed entry" button. Quick add covers most cases,
+- [x] **Collapse the detailed form** behind a "Detailed entry" button. Quick add covers most cases,
       and on a phone the form pushes the list far down.
-- [ ] Friendlier dates in the list (`أمس`, `3 nov.`) instead of `2026-11-03`.
+- [x] Friendlier dates in the list (`أمس`, `3 nov.`) instead of `2026-11-03`.
 
 **Phone (with Phase 3)**
-- [ ] **Bottom tab bar on small screens.** The top nav takes 2 rows on a phone.
-- [ ] Bigger touch targets for Edit/Delete (they are small text links now).
+- [x] **Bottom tab bar on small screens.** The top nav takes 2 rows on a phone.
+- [x] Bigger touch targets for Edit/Delete (they are small text links now).
 - [x] Note: `crypto.randomUUID()` needs HTTPS or localhost. Phase 3 must use the Tailscale
       HTTPS address, or saving fails on the phone.
 
 **Dashboard**
-- [ ] Default chart range to the months that have data (12 months shows many empty bars).
-- [ ] KPI cards: compare with last month ("+12 % vs October").
-- [ ] Loading skeletons instead of "…".
+- [x] Default chart range to the months that have data (12 months shows many empty bars).
+- [x] KPI cards: compare with last month ("+12 % vs October").
+- [x] Loading skeletons instead of "…".
 
 **Decided: friend's euro card** (2026-11-06)
 - "card" in the app = a friend's euro card. EUR spends are tracked in the "بطاقة الصديق" panel
@@ -220,7 +220,7 @@ Ordered by value for daily use. Pick them one at a time.
 ---
 
 ## Later / nice to have
-- [ ] **Modern, premium style** — see [STYLE_PLAN.md](STYLE_PLAN.md).
+- [x] **Modern, premium style** — see [STYLE_PLAN.md](STYLE_PLAN.md).
 - [ ] Simple PIN login if the app is ever used outside Tailscale.
 - [ ] CSV export (for backup or a spreadsheet).
 - [ ] Import from the old CSV in `to_be_ignored/` with the same bulk-import screen.
@@ -244,12 +244,12 @@ Ordered by value for daily use. Pick them one at a time.
 | 2026-11-06 | 2 | Quick-add parser (rules + dateparser + rapidfuzz), learned words, quick-add card, UX review |
 | 2026-11-06 | UX | Toasts (save/delete errors), undo delete, remembered category, decimal keypad, thousands separator; local card = bank |
 | 2026-11-06 | 3 | PWA (install, wallet icon, shortcut), offline cache + save queue, Tailscale guide, restart policies |
+| 2026-11-07 | Style | Offline fonts (Inter + IBM Plex Sans Arabic), icons, phone tab bar, Log by day, hero card, month switcher, calmer charts |
 | 2026-11-06 | 2 | Tunisian dialect: أول البارح, dialect weekdays, millimes, بالكارطة; ~140 Derja seed words; tests mostly in Arabic/Derja (122 backend tests) |
 
 ---
 
 ## Next step
 1. You: set up the phone (docs/PHONE_SETUP.md) and test quick add with a real note.
-2. Then the remaining UX items (Log list by day, bottom tab bar on phone, dashboard), then Phase 4.
-3. Later: a modern, premium look. Full plan in [STYLE_PLAN.md](STYLE_PLAN.md)
-   (Arabic font, offline fonts, icons, bottom tab bar, bottom sheets, dashboard hero card).
+2. The new style is done ([STYLE_PLAN.md](STYLE_PLAN.md)). Left from the UX list: the
+   monthly-funds 404 and status-not-only-color checks. Then Phase 4.

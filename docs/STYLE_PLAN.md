@@ -1,7 +1,7 @@
 # Style plan — a modern, premium look
 
-Status: **planned, not started.** Do this after the remaining UX items in `ROADMAP.md`
-(or together with them: the bottom tab bar and the day-grouped list are part of the new look).
+Status: **done (2026-11-07)**, steps 1–6, on branch `style-refresh`. Not chosen in the end:
+vaul (bottom sheet) and motion — tapping a row opens the inline form, and CSS transitions were enough.
 
 ## Goal
 The app should feel calm, fast and expensive, like a good banking app.
