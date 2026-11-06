@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { getCategoriesByType } from '../constants'
 import { t } from '../i18n'
 import { saveTransaction } from '../services/storage'
@@ -13,36 +13,18 @@ function modeFromTransaction(tx) {
 export default function TransactionForm({ lang, editingTransaction, onSaved, onCancelEdit }) {
   const isEditing = Boolean(editingTransaction)
 
-  const [mode, setMode] = useState('expense')
-  const [type, setType] = useState('expense')
-  const [amount, setAmount] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState('bank')
-  const [category, setCategory] = useState('rent')
-  const [date, setDate] = useState(localDateString())
-  const [notes, setNotes] = useState('')
-  const [recurring, setRecurring] = useState(false)
-
-  useEffect(() => {
-    if (editingTransaction) {
-      setMode(modeFromTransaction(editingTransaction))
-      setType(editingTransaction.type)
-      setAmount(String(editingTransaction.amount))
-      setPaymentMethod(editingTransaction.paymentMethod ?? 'bank')
-      setCategory(editingTransaction.category ?? 'rent')
-      setDate(editingTransaction.date)
-      setNotes(editingTransaction.notes ?? '')
-      setRecurring(editingTransaction.recurring ?? false)
-    } else {
-      setMode('expense')
-      setType('expense')
-      setAmount('')
-      setPaymentMethod('bank')
-      setCategory('rent')
-      setDate(localDateString())
-      setNotes('')
-      setRecurring(false)
-    }
-  }, [editingTransaction])
+  // Initial values come from the transaction being edited (if any).
+  // LogPage gives this component a `key`, so starting or stopping an edit
+  // mounts a fresh form instead of syncing state in an effect.
+  const tx = editingTransaction
+  const [mode, setMode] = useState(tx ? modeFromTransaction(tx) : 'expense')
+  const [type, setType] = useState(tx?.type ?? 'expense')
+  const [amount, setAmount] = useState(tx ? String(tx.amount) : '')
+  const [paymentMethod, setPaymentMethod] = useState(tx?.paymentMethod ?? 'bank')
+  const [category, setCategory] = useState(tx?.category ?? 'rent')
+  const [date, setDate] = useState(tx?.date ?? localDateString())
+  const [notes, setNotes] = useState(tx?.notes ?? '')
+  const [recurring, setRecurring] = useState(tx?.recurring ?? false)
 
   const categories = getCategoriesByType(type)
 

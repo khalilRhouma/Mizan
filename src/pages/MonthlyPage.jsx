@@ -54,8 +54,8 @@ export default function MonthlyPage({ lang }) {
   const [settlingCard, setSettlingCard] = useState(false)
   const [loading, setLoading] = useState(true)
 
+  // Keeps the current data visible while reloading (no flicker after a save).
   const refresh = useCallback(async () => {
-    setLoading(true)
     try {
       const [txs, debtList, settings] = await Promise.all([
         getTransactions(),

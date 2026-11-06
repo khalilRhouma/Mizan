@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from app.categories import CATEGORIES
 from app.config import settings
 from app.crud import (
-    DEFAULT_SETTINGS,
     delete_debt,
     delete_transaction,
     get_monthly_funds,
@@ -119,10 +118,7 @@ def api_delete_debt(debt_id: str, db: Session = Depends(get_db)):
 
 @app.get("/settings")
 def api_get_settings(db: Session = Depends(get_db)):
-    try:
-        return get_settings(db)
-    except Exception:
-        return DEFAULT_SETTINGS
+    return get_settings(db)
 
 
 @app.patch("/settings")

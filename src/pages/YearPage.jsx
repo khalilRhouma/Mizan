@@ -21,7 +21,6 @@ export default function YearPage({ lang }) {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
     Promise.all([getTransactions(), getMonthlyFundsList(), getSettings()])
       .then(([txs, funds, settings]) => {
         if (cancelled) return

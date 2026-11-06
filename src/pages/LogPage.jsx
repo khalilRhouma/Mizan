@@ -38,8 +38,8 @@ export default function LogPage({ lang }) {
   const [monthFilter, setMonthFilter] = useState('')
   const [notesQuery, setNotesQuery] = useState('')
 
+  // Keeps the current list visible while reloading (no flicker after a save).
   const refresh = useCallback(async () => {
-    setLoading(true)
     try {
       const txs = await getTransactions()
       setTransactions(txs)
@@ -77,6 +77,7 @@ export default function LogPage({ lang }) {
   return (
     <div className="page-content-narrow page-stack">
       <TransactionForm
+        key={editingTransaction?.id ?? 'new'}
         lang={lang}
         editingTransaction={editingTransaction}
         onSaved={handleSaved}

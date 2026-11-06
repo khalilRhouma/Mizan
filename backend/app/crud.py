@@ -10,14 +10,6 @@ from app.schemas import (
     TransactionIn,
 )
 
-DEFAULT_SETTINGS = SettingsOut(
-    language="ar",
-    theme="light",
-    salary=0,
-    fundSplits=FundSplits(),
-    cashBalanceOffset=0,
-)
-
 
 def _tx_to_api(row: Transaction) -> dict:
     return {

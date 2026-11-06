@@ -93,10 +93,10 @@ export async function getSettings() {
   }
 }
 
-export async function saveSettings(settings) {
-  const current = await getSettings()
+/** PATCH only the given fields, e.g. saveSettings({ theme: 'dark' }). */
+export async function saveSettings(changes) {
   return request('/settings', {
     method: 'PATCH',
-    body: JSON.stringify({ ...current, ...settings }),
+    body: JSON.stringify(changes),
   })
 }
