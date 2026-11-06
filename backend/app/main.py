@@ -21,7 +21,8 @@ from app.crud import (
     upsert_monthly_funds,
     upsert_transaction,
 )
-from app.database import Base, engine, get_db
+from app.database import engine, get_db
+from app.migrate import run_migrations
 from app.schemas import DebtIn, MonthlyFundsIn, SettingsIn, TransactionIn
 
 cors_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
@@ -29,20 +30,8 @@ cors_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    Base.metadata.create_all(bind=engine)
-    with engine.begin() as conn:
-        conn.execute(
-            text(
-                "ALTER TABLE settings ADD COLUMN IF NOT EXISTS "
-                "cash_balance_offset DOUBLE PRECISION DEFAULT 0"
-            )
-        )
-        conn.execute(
-            text(
-                "ALTER TABLE transactions ADD COLUMN IF NOT EXISTS "
-                "card_settled BOOLEAN NOT NULL DEFAULT FALSE"
-            )
-        )
+    # Create or upgrade the schema with Alembic (see app/migrate.py).
+    run_migrations(engine)
     yield
 
 

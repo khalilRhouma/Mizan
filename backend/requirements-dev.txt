@@ -1,0 +1,5 @@
+# Test / dev tools (not installed in the Docker image)
+-r requirements.txt
+pytest==9.2.0
+httpx==0.28.1                 # needed by fastapi.testclient
+testcontainers[postgres]==4.15.0  # starts a throwaway Postgres for tests (needs Docker)
