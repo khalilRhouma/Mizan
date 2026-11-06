@@ -116,7 +116,7 @@ Packages:
 **Done when:** pasting my real 2-week note fills ≥ 80 % of rows with the right category and no wrong amounts.
 Parser has unit tests with real note lines.
 
-✅ **Phase 2 built (2026-11-06).** 138 seed words, 35 parser tests + API tests (84 backend tests).
+✅ **Phase 2 built (2026-11-06).** 138 seed words, 35 parser tests + API tests (79 backend tests in total).
 The quick-add card is the first card on the Log page; drafts are one editable block per line.
 ⏳ **Left for you:** paste a real 2-week note and check the ≥ 80 % goal. Add missing words by
 saving (the app learns) — no code change needed.
