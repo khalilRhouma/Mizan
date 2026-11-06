@@ -220,6 +220,7 @@ Ordered by value for daily use. Pick them one at a time.
 ---
 
 ## Later / nice to have
+- [ ] **Modern, premium style** — see [STYLE_PLAN.md](STYLE_PLAN.md).
 - [ ] Simple PIN login if the app is ever used outside Tailscale.
 - [ ] CSV export (for backup or a spreadsheet).
 - [ ] Import from the old CSV in `to_be_ignored/` with the same bulk-import screen.
@@ -250,3 +251,5 @@ Ordered by value for daily use. Pick them one at a time.
 ## Next step
 1. You: set up the phone (docs/PHONE_SETUP.md) and test quick add with a real note.
 2. Then the remaining UX items (Log list by day, bottom tab bar on phone, dashboard), then Phase 4.
+3. Later: a modern, premium look. Full plan in [STYLE_PLAN.md](STYLE_PLAN.md)
+   (Arabic font, offline fonts, icons, bottom tab bar, bottom sheets, dashboard hero card).
