@@ -18,6 +18,7 @@ class Transaction(Base):
     created_at: Mapped[int] = mapped_column(BigInteger, nullable=False)
     kind: Mapped[str] = mapped_column(String(32), default="normal")
     payment_method: Mapped[str] = mapped_column(String(16), default="bank")
+    card_settled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
 
 
 class MonthlyFund(Base):

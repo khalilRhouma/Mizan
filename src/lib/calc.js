@@ -74,18 +74,18 @@ export function groupByCategory(transactions, yearMonth, type) {
   }, {})
 }
 
-export function getEurTransactions(transactions, yearMonth) {
+export function getOutstandingEurTransactions(transactions) {
   return transactions.filter(
     (tx) =>
       tx.currency === 'EUR' &&
-      isInMonth(tx.date, yearMonth) &&
       isNormalTransaction(tx) &&
-      tx.type === 'expense',
+      tx.type === 'expense' &&
+      !tx.cardSettled,
   )
 }
 
-export function eurTotal(transactions, yearMonth) {
-  return getEurTransactions(transactions, yearMonth).reduce(
+export function outstandingEurTotal(transactions) {
+  return getOutstandingEurTransactions(transactions).reduce(
     (sum, tx) => sum + tx.amount,
     0,
   )

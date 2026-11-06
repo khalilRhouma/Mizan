@@ -11,6 +11,7 @@ from app.crud import (
     delete_debt,
     delete_transaction,
     get_monthly_funds,
+    settle_outstanding_card_payments,
     get_settings,
     list_debts,
     list_monthly_funds,
@@ -34,6 +35,12 @@ async def lifespan(_app: FastAPI):
             text(
                 "ALTER TABLE settings ADD COLUMN IF NOT EXISTS "
                 "cash_balance_offset DOUBLE PRECISION DEFAULT 0"
+            )
+        )
+        conn.execute(
+            text(
+                "ALTER TABLE transactions ADD COLUMN IF NOT EXISTS "
+                "card_settled BOOLEAN NOT NULL DEFAULT FALSE"
             )
         )
     yield
@@ -73,6 +80,12 @@ def api_save_transaction(body: TransactionIn, db: Session = Depends(get_db)):
 @app.delete("/transactions/{tx_id}", status_code=204)
 def api_delete_transaction(tx_id: str, db: Session = Depends(get_db)):
     delete_transaction(db, tx_id)
+
+
+@app.post("/transactions/settle-card")
+def api_settle_card(db: Session = Depends(get_db)):
+    settled = settle_outstanding_card_payments(db)
+    return {"settled": settled}
 
 
 @app.get("/monthly-funds")

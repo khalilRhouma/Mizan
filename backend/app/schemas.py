@@ -13,6 +13,7 @@ class TransactionIn(BaseModel):
     createdAt: int = Field(default=0, alias="createdAt")
     kind: str = "normal"
     paymentMethod: str = Field(default="bank", alias="paymentMethod")
+    cardSettled: bool | None = Field(default=None, alias="cardSettled")
 
     model_config = {"populate_by_name": True}
 

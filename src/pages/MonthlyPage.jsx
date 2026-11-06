@@ -9,13 +9,13 @@ import SavingsFundsForm from '../components/SavingsFundsForm'
 import Card from '../components/ui/Card'
 import { t } from '../i18n'
 import {
-  eurTotal,
   filterDebtsForMonth,
-  getEurTransactions,
+  getOutstandingEurTransactions,
   groupByCategory,
   cashBalanceAllTime,
   homeCashSummary,
   monthlyTotals,
+  outstandingEurTotal,
   paymentMethodTotals,
   suggestFunds,
 } from '../lib/calc'
@@ -26,6 +26,7 @@ import {
   getTransactions,
   saveMonthlyFunds,
   saveSettings,
+  settleCardPayments,
 } from '../services/storage'
 
 function currentYearMonth() {
@@ -50,6 +51,7 @@ export default function MonthlyPage({ lang }) {
     investment: 40,
   })
   const [cashBalanceOffset, setCashBalanceOffset] = useState(0)
+  const [settlingCard, setSettlingCard] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
@@ -94,12 +96,12 @@ export default function MonthlyPage({ lang }) {
     [transactions, yearMonth, cashBalanceOffset],
   )
   const eurTxns = useMemo(
-    () => getEurTransactions(transactions, yearMonth),
-    [transactions, yearMonth],
+    () => getOutstandingEurTransactions(transactions),
+    [transactions],
   )
   const eurSum = useMemo(
-    () => eurTotal(transactions, yearMonth),
-    [transactions, yearMonth],
+    () => outstandingEurTotal(transactions),
+    [transactions],
   )
   const borrowedEntries = useMemo(
     () => filterDebtsForMonth(debts.filter((d) => d.type === 'borrowed'), yearMonth),
@@ -150,6 +152,24 @@ export default function MonthlyPage({ lang }) {
     await saveMonthlyFunds({ yearMonth, ...funds })
     await saveSettings({ fundSplits })
     setSavedNotice(true)
+  }
+
+  async function handleSettleCard() {
+    if (eurTxns.length === 0 || settlingCard) return
+    if (!window.confirm(t('resetCardConfirm', lang))) return
+    setSettlingCard(true)
+    try {
+      await settleCardPayments()
+      setTransactions((prev) =>
+        prev.map((tx) =>
+          tx.currency === 'EUR' && tx.type === 'expense' && tx.kind !== 'cash_withdrawal' && !tx.cardSettled
+            ? { ...tx, cardSettled: true }
+            : tx,
+        ),
+      )
+    } finally {
+      setSettlingCard(false)
+    }
   }
 
   async function handleBalanceCorrect(targetAmount) {
@@ -210,7 +230,13 @@ export default function MonthlyPage({ lang }) {
 
       <DebtLedgerPanel lang={lang} type="lent" entries={lendingEntries} onChanged={refresh} />
 
-      <CardPaymentsPanel lang={lang} eurTxns={eurTxns} eurSum={eurSum} />
+      <CardPaymentsPanel
+        lang={lang}
+        eurTxns={eurTxns}
+        eurSum={eurSum}
+        onSettle={handleSettleCard}
+        settling={settlingCard}
+      />
     </div>
   )
 }

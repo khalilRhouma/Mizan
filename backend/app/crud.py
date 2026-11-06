@@ -33,6 +33,7 @@ def _tx_to_api(row: Transaction) -> dict:
         "createdAt": row.created_at,
         "kind": row.kind,
         "paymentMethod": row.payment_method,
+        "cardSettled": bool(row.card_settled),
     }
 
 
@@ -59,7 +60,8 @@ def list_transactions(db: Session) -> list[dict]:
 def upsert_transaction(db: Session, data: TransactionIn) -> dict:
     payload = migrate_transaction(data.model_dump(by_alias=True))
     row = db.get(Transaction, payload["id"])
-    if row is None:
+    is_new = row is None
+    if is_new:
         row = Transaction(id=payload["id"])
         db.add(row)
     row.date = payload["date"]
@@ -72,9 +74,31 @@ def upsert_transaction(db: Session, data: TransactionIn) -> dict:
     row.created_at = payload["createdAt"]
     row.kind = payload.get("kind") or "normal"
     row.payment_method = payload.get("paymentMethod") or "bank"
+    incoming_settled = payload.get("cardSettled")
+    if is_new:
+        row.card_settled = bool(incoming_settled)
+    elif incoming_settled is not None:
+        row.card_settled = bool(incoming_settled)
     db.commit()
     db.refresh(row)
     return _tx_to_api(row)
+
+
+def settle_outstanding_card_payments(db: Session) -> int:
+    rows = (
+        db.query(Transaction)
+        .filter(
+            Transaction.currency == "EUR",
+            Transaction.type == "expense",
+            Transaction.kind != "cash_withdrawal",
+            Transaction.card_settled.is_(False),
+        )
+        .all()
+    )
+    for row in rows:
+        row.card_settled = True
+    db.commit()
+    return len(rows)
 
 
 def delete_transaction(db: Session, tx_id: str) -> None:

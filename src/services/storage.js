@@ -33,6 +33,10 @@ export async function deleteTransaction(id) {
   return request(`/transactions/${id}`, { method: 'DELETE' })
 }
 
+export async function settleCardPayments() {
+  return request('/transactions/settle-card', { method: 'POST' })
+}
+
 export async function getMonthlyFundsList() {
   return request('/monthly-funds')
 }

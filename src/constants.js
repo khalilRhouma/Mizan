@@ -66,6 +66,7 @@ export const CATEGORIES = [
   { key: 'leisure', ar: 'ترفيه / رياضة', en: 'Leisure / sports', type: 'expense' },
   { key: 'car', ar: 'مصاريف سيارة', en: 'Car expenses', type: 'expense' },
   { key: 'construction', ar: 'بناء / مواد بناء / يد عاملة', en: 'Construction', type: 'expense' },
+  { key: 'investment_project', ar: 'مشاريع استثمار', en: 'Investment project', type: 'expense' },
   { key: 'extra_expense', ar: 'مصروفات إضافية', en: 'Extra expenses', type: 'expense' },
 ]
 
