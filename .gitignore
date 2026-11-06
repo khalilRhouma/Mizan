@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Database backups (contain personal financial data)
+backups/
+
 # Environment
 .env
 .env.*

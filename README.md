@@ -103,6 +103,29 @@ finance-system/
 └── spec.md            # مواصفات المنتج
 ```
 
+## النسخ الاحتياطي
+
+خدمة `backup` (تعمل مع `npm run docker:up`) تشغّل `pg_dump` كل يوم عند منتصف الليل
+(توقيت تونس) وتحفظ ملفات gzip في المجلد `./backups/` على جهازك.
+تحتفظ بـ 7 نسخ يومية و4 أسبوعية و6 شهرية. المجلد `backups/` مستثنى من git.
+
+**أخذ نسخة الآن**
+
+```bash
+docker exec finance-backup /backup.sh
+```
+
+**استرجاع نسخة** (يستبدل البيانات الحالية في قاعدة `finance`)
+
+```bash
+gunzip -c backups/last/finance-latest.sql.gz | docker exec -i finance-db psql -U finance -d finance -v ON_ERROR_STOP=1
+```
+
+للرجوع أبعد في الزمن، استعمل ملفاً من `daily/` أو `weekly/` أو `monthly/`.
+إذا غيّرت `POSTGRES_USER` أو `POSTGRES_DB` في `.env`، استعمل قيمك بدل `finance`.
+
+> نصيحة: انسخ المجلد `backups/` إلى مجلد سحابي أو قرص خارجي من حين لآخر.
+
 ## متغيرات البيئة
 
 انظر [`.env.example`](.env.example) لكل الخيارات.

@@ -2,10 +2,7 @@ import { useEffect, useState } from 'react'
 import { getCategoriesByType } from '../constants'
 import { t } from '../i18n'
 import { saveTransaction } from '../services/storage'
-
-function todayString() {
-  return new Date().toISOString().slice(0, 10)
-}
+import { localDateString } from '../lib/dates'
 
 function modeFromTransaction(tx) {
   if (tx?.kind === 'cash_withdrawal') return 'withdrawal'
@@ -21,7 +18,7 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
   const [amount, setAmount] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('bank')
   const [category, setCategory] = useState('rent')
-  const [date, setDate] = useState(todayString())
+  const [date, setDate] = useState(localDateString())
   const [notes, setNotes] = useState('')
   const [recurring, setRecurring] = useState(false)
 
@@ -41,7 +38,7 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
       setAmount('')
       setPaymentMethod('bank')
       setCategory('rent')
-      setDate(todayString())
+      setDate(localDateString())
       setNotes('')
       setRecurring(false)
     }
@@ -73,7 +70,7 @@ export default function TransactionForm({ lang, editingTransaction, onSaved, onC
     setAmount('')
     setPaymentMethod('bank')
     setCategory('rent')
-    setDate(todayString())
+    setDate(localDateString())
     setNotes('')
     setRecurring(false)
   }

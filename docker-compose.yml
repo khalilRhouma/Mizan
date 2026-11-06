@@ -28,6 +28,33 @@ services:
       db:
         condition: service_healthy
 
+  # Daily database backup (pg_dump) into ./backups on the host.
+  # Image: https://github.com/prodrigestivill/docker-postgres-backup-local
+  # Tag must match the Postgres major version of the "db" service (16).
+  # Run a backup now:  docker exec finance-backup /backup.sh
+  backup:
+    image: prodrigestivill/postgres-backup-local:16
+    container_name: finance-backup
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ${POSTGRES_DB:-finance}
+      POSTGRES_USER: ${POSTGRES_USER:-finance}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-finance}
+      # -Z1: gzip the dump (the image default, we must keep it when overriding)
+      # --clean --if-exists: the dump can be restored over an existing DB
+      POSTGRES_EXTRA_OPTS: "-Z1 --clean --if-exists"
+      SCHEDULE: "@daily"          # cron syntax also works, e.g. "0 21 * * *"
+      BACKUP_KEEP_DAYS: 7         # keep the last 7 daily dumps
+      BACKUP_KEEP_WEEKS: 4        # keep 4 weekly dumps
+      BACKUP_KEEP_MONTHS: 6       # keep 6 monthly dumps
+      TZ: Africa/Tunis
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
   web:
     profiles: ["full"]
     build:

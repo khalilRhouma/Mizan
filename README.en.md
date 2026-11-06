@@ -103,6 +103,38 @@ finance-system/
 └── spec.md            # Product specification
 ```
 
+## Backups
+
+The `backup` service (started with `npm run docker:up`) runs `pg_dump` every day at midnight
+(Africa/Tunis) and writes gzip files to `./backups/` on your machine.
+It keeps 7 daily, 4 weekly and 6 monthly copies. `backups/` is git-ignored.
+
+```
+backups/
+├── last/     # every run, newest is finance-latest.sql.gz
+├── daily/
+├── weekly/
+└── monthly/
+```
+
+**Take a backup now**
+
+```bash
+docker exec finance-backup /backup.sh
+```
+
+**Restore a backup** (replaces the current data in the `finance` database)
+
+```bash
+gunzip -c backups/last/finance-latest.sql.gz | docker exec -i finance-db psql -U finance -d finance -v ON_ERROR_STOP=1
+```
+
+Use another file from `daily/`, `weekly/` or `monthly/` to go back further.
+If you changed `POSTGRES_USER` or `POSTGRES_DB` in `.env`, use those values instead of `finance`.
+
+> Tip: copy `backups/` to a cloud folder or an external disk from time to time.
+> A backup on the same disk does not help if the disk dies.
+
 ## Environment variables
 
 See [`.env.example`](.env.example) for all options.

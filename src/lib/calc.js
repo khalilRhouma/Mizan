@@ -1,4 +1,5 @@
 import { DEFAULT_FUND_SPLITS } from '../constants'
+import { localDateString } from './dates.js'
 
 function normalizeSplits(splits) {
   const s = {
@@ -109,7 +110,7 @@ export function filterDebtsForMonth(debts, yearMonth) {
 
 export function isOverdue(debt) {
   if (debt.status !== 'open' || !debt.deadline) return false
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localDateString()
   return debt.deadline < today
 }
 

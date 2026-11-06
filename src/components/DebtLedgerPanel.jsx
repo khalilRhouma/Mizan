@@ -5,16 +5,13 @@ import { isOverdue } from '../lib/calc'
 import { deleteDebt, getDebts, saveDebt } from '../services/storage'
 import Card from './ui/Card'
 import { formatAmount } from '../lib/chartUtils'
-
-function todayString() {
-  return new Date().toISOString().slice(0, 10)
-}
+import { localDateString } from '../lib/dates'
 
 function emptyForm() {
   return {
     label: '',
     amount: '',
-    date: todayString(),
+    date: localDateString(),
     deadline: '',
     notes: '',
   }
