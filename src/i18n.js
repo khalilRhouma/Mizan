@@ -1,6 +1,27 @@
 const dictionary = {
   ar: {
     appTitle: 'نظام تتبع المالية',
+    quickAdd: 'إضافة سريعة',
+    quickAddHint: 'مصروف واحد في كل سطر. يمكنك لصق ملاحظة الهاتف كاملة. سطر فيه تاريخ فقط ينطبق على الأسطر التي تحته.',
+    quickAddPlaceholder: 'بنزين 60\nchemise 45 hier\nnetflix 12€\n3/11\nصيدلية 18',
+    quickAddRead: 'قراءة',
+    quickAddShortcut: 'Enter للقراءة · Shift+Enter لسطر جديد',
+    quickAddSaveN: 'حفظ {n}',
+    quickAddClear: 'مسح',
+    quickAddSummary: '{ready} جاهز · {missing} بدون فئة · {errors} بدون مبلغ',
+    quickAddSaved: 'تم الحفظ. عدد المعاملات: {n}',
+    quickAddNoAmount: 'لم يُعثر على مبلغ',
+    quickAddNeedsCategory: 'اختر فئة',
+    quickAddChooseCategory: '— اختر فئة —',
+    quickAddFuzzy: 'تخمين',
+    quickAddRemove: 'إزالة',
+    quickAddSaveError: 'تعذّر حفظ بعض الأسطر. راجعها وأعد المحاولة.',
+    quickAddReadError: 'تعذّرت قراءة النص. تأكد أن الخادم يعمل.',
+    learnedWords: 'الكلمات المحفوظة',
+    learnedWordsHint: 'التطبيق يربط هذه الكلمات بالفئات. يتعلم كلمات جديدة عند الحفظ.',
+    noLearnedWords: 'لا توجد كلمات بعد.',
+    hits: 'مرات',
+    type: 'النوع',
     apiUnavailable: 'تعذّر الاتصال بالخادم. تأكد أن الـ API يعمل ثم أعد تحميل الصفحة.',
     navLog: 'تسجيل',
     navMonthly: 'شهري',
@@ -98,6 +119,27 @@ const dictionary = {
   },
   en: {
     appTitle: 'Personal Finance Tracker',
+    quickAdd: 'Quick add',
+    quickAddHint: 'One spend per line. You can paste your whole phone note. A line with only a date applies to the lines below it.',
+    quickAddPlaceholder: 'gas 60\nchemise 45 yesterday\nnetflix 12€\n3/11\npharmacy 18',
+    quickAddRead: 'Read',
+    quickAddShortcut: 'Enter to read · Shift+Enter for a new line',
+    quickAddSaveN: 'Save {n}',
+    quickAddClear: 'Clear',
+    quickAddSummary: '{ready} ready · {missing} need a category · {errors} without amount',
+    quickAddSaved: '{n} transactions saved',
+    quickAddNoAmount: 'No amount found',
+    quickAddNeedsCategory: 'Choose a category',
+    quickAddChooseCategory: '— choose a category —',
+    quickAddFuzzy: 'guess',
+    quickAddRemove: 'Remove',
+    quickAddSaveError: 'Some lines could not be saved. Check them and try again.',
+    quickAddReadError: 'Could not read the text. Check that the server is running.',
+    learnedWords: 'Learned words',
+    learnedWordsHint: 'The app links these words to categories. It learns new ones when you save.',
+    noLearnedWords: 'No words yet.',
+    hits: 'times',
+    type: 'Type',
     apiUnavailable: 'Cannot reach the server. Check that the API is running, then reload the page.',
     navLog: 'Log',
     navMonthly: 'Monthly',
@@ -197,7 +239,10 @@ const dictionary = {
 
 export { dictionary }
 
-export function t(key, lang) {
+export function t(key, lang, vars) {
   const resolved = lang === 'fr' ? 'en' : lang
-  return dictionary[resolved]?.[key] ?? dictionary.ar[key] ?? key
+  const text = dictionary[resolved]?.[key] ?? dictionary.ar[key] ?? key
+  if (!vars) return text
+  // t('quickAddSaveN', lang, { n: 3 }) -> 'Save 3'
+  return text.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''))
 }

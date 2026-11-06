@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import QuickAddCard from '../components/QuickAddCard'
 import TransactionForm from '../components/TransactionForm'
 import TransactionList from '../components/TransactionList'
 import Card from '../components/ui/Card'
@@ -76,6 +77,7 @@ export default function LogPage({ lang }) {
 
   return (
     <div className="page-content-narrow page-stack">
+      <QuickAddCard lang={lang} onSaved={refresh} />
       <TransactionForm
         key={editingTransaction?.id ?? 'new'}
         lang={lang}

@@ -100,3 +100,28 @@ export async function saveSettings(changes) {
     body: JSON.stringify(changes),
   })
 }
+
+// --- quick add ---------------------------------------------------------------
+
+/** Turn free text (one spend per line) into draft transactions. Saves nothing. */
+export async function parseQuickAdd(text, today) {
+  const data = await request('/quick-add/parse', {
+    method: 'POST',
+    body: JSON.stringify({ text, today }),
+  })
+  return data.drafts
+}
+
+/** Remember "word -> category" for saved drafts: [{ keywords, category }]. */
+export async function learnCategoryRules(items) {
+  if (items.length === 0) return { learned: 0 }
+  return request('/category-rules/learn', { method: 'POST', body: JSON.stringify({ items }) })
+}
+
+export async function getCategoryRules() {
+  return request('/category-rules')
+}
+
+export async function deleteCategoryRule(id) {
+  return request(`/category-rules/${id}`, { method: 'DELETE' })
+}
