@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 
-from app.migrations import migrate_debt, migrate_transaction
 from app.models import AppSettings, Debt, MonthlyFund, Transaction
 from app.schemas import (
     DebtIn,
@@ -58,27 +57,24 @@ def list_transactions(db: Session) -> list[dict]:
 
 
 def upsert_transaction(db: Session, data: TransactionIn) -> dict:
-    payload = migrate_transaction(data.model_dump(by_alias=True))
-    row = db.get(Transaction, payload["id"])
+    row = db.get(Transaction, data.id)
     is_new = row is None
     if is_new:
-        row = Transaction(id=payload["id"])
+        row = Transaction(id=data.id)
         db.add(row)
-    row.date = payload["date"]
-    row.type = payload["type"]
-    row.amount = payload["amount"]
-    row.currency = payload["currency"]
-    row.category = payload["category"]
-    row.notes = payload.get("notes") or ""
-    row.recurring = payload.get("recurring", False)
-    row.created_at = payload["createdAt"]
-    row.kind = payload.get("kind") or "normal"
-    row.payment_method = payload.get("paymentMethod") or "bank"
-    incoming_settled = payload.get("cardSettled")
-    if is_new:
-        row.card_settled = bool(incoming_settled)
-    elif incoming_settled is not None:
-        row.card_settled = bool(incoming_settled)
+    row.date = data.date.isoformat()
+    row.type = data.type
+    row.amount = data.amount
+    row.currency = data.currency
+    row.category = data.category
+    row.notes = data.notes
+    row.recurring = data.recurring
+    row.created_at = data.createdAt
+    row.kind = data.kind
+    row.payment_method = data.paymentMethod
+    # cardSettled is optional: on update, keep the stored value unless sent.
+    if is_new or data.cardSettled is not None:
+        row.card_settled = bool(data.cardSettled)
     db.commit()
     db.refresh(row)
     return _tx_to_api(row)
@@ -152,20 +148,19 @@ def list_debts(db: Session) -> list[dict]:
 
 
 def upsert_debt(db: Session, data: DebtIn) -> dict:
-    payload = migrate_debt(data.model_dump(by_alias=True))
-    row = db.get(Debt, payload["id"])
+    row = db.get(Debt, data.id)
     if row is None:
-        row = Debt(id=payload["id"])
+        row = Debt(id=data.id)
         db.add(row)
-    row.type = payload["type"]
-    row.label = payload["label"]
-    row.amount = payload["amount"]
-    row.currency = payload["currency"]
-    row.date = payload["date"]
-    row.deadline = payload.get("deadline") or ""
-    row.notes = payload.get("notes") or ""
-    row.status = payload.get("status") or "open"
-    row.created_at = payload["createdAt"]
+    row.type = data.type
+    row.label = data.label
+    row.amount = data.amount
+    row.currency = data.currency
+    row.date = data.date.isoformat()
+    row.deadline = data.deadline.isoformat() if data.deadline else ""
+    row.notes = data.notes
+    row.status = data.status
+    row.created_at = data.createdAt
     db.commit()
     db.refresh(row)
     return _debt_to_api(row)
@@ -202,31 +197,24 @@ def get_settings(db: Session) -> SettingsOut:
             personal=row.fund_splits_personal,
             investment=row.fund_splits_investment,
         ),
-        cashBalanceOffset=getattr(row, "cash_balance_offset", 0) or 0,
+        cashBalanceOffset=row.cash_balance_offset or 0,
     )
 
 
 def patch_settings(db: Session, patch: SettingsIn) -> SettingsOut:
+    """Change only the fields that were sent."""
     row = _settings_row(db)
-    current = get_settings(db)
-    merged = current.model_dump()
     if patch.language is not None:
-        merged["language"] = patch.language
+        row.language = patch.language
     if patch.theme is not None:
-        merged["theme"] = patch.theme
+        row.theme = patch.theme
     if patch.salary is not None:
-        merged["salary"] = patch.salary
+        row.salary = patch.salary
     if patch.fundSplits is not None:
-        merged["fundSplits"] = patch.fundSplits.model_dump()
+        row.fund_splits_commitments = patch.fundSplits.commitments
+        row.fund_splits_personal = patch.fundSplits.personal
+        row.fund_splits_investment = patch.fundSplits.investment
     if patch.cashBalanceOffset is not None:
-        merged["cashBalanceOffset"] = patch.cashBalanceOffset
-
-    row.language = merged["language"]
-    row.theme = merged["theme"]
-    row.salary = merged["salary"]
-    row.fund_splits_commitments = merged["fundSplits"]["commitments"]
-    row.fund_splits_personal = merged["fundSplits"]["personal"]
-    row.fund_splits_investment = merged["fundSplits"]["investment"]
-    row.cash_balance_offset = merged.get("cashBalanceOffset", 0) or 0
+        row.cash_balance_offset = patch.cashBalanceOffset
     db.commit()
     return get_settings(db)
