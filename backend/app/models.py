@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import BigInteger, Boolean, Float, Numeric, String
+from sqlalchemy import BigInteger, Boolean, Float, Integer, Numeric, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -61,3 +61,20 @@ class AppSettings(Base):
     fund_splits_personal: Mapped[float] = mapped_column(Float, default=20)
     fund_splits_investment: Mapped[float] = mapped_column(Float, default=40)
     cash_balance_offset: Mapped[Decimal] = mapped_column(Money, default=0, server_default="0")
+
+
+class CategoryRule(Base):
+    """A learned link "word -> category" used by the quick-add parser.
+
+    `keyword` is normalized (lowercase, Arabic letters unified, see
+    app/text.py). The same keyword can point to several categories; the one
+    with the most `hits` wins.
+    """
+
+    __tablename__ = "category_rules"
+    __table_args__ = (UniqueConstraint("keyword", "category", name="uq_category_rules_keyword_category"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    keyword: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    category: Mapped[str] = mapped_column(String(64), nullable=False)
+    hits: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
