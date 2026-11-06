@@ -198,10 +198,12 @@ Ordered by value for daily use. Pick them one at a time.
 - [ ] KPI cards: compare with last month ("+12 % vs October").
 - [ ] Loading skeletons instead of "…".
 
-**Decision needed**
-- [ ] **Card = EUR?** The app treats every card payment as EUR (main form and quick add:
-      `بالكارطة` → EUR). If you also pay with a Tunisian card in dinars, split it into
-      "local card (TND)" and "foreign card (EUR)".
+**Decided: friend's euro card** (2026-11-06)
+- "card" in the app = a friend's euro card. EUR spends are tracked in the "بطاقة الصديق" panel
+  and left out of TND totals. The repayment to the friend is saved as a TND expense
+  (category "others", note like "خلاص دين ..."), then the panel is settled. Nothing is missed.
+- Local Tunisian card payments are noted as **bank**. Quick add follows this:
+  `كارطة` / `بالكارطة` / `بطاقة` → bank (TND); only `€` / `يورو` → friend's card (EUR).
 
 **Small polish**
 - [ ] `GET /monthly-funds/{month}` returns 404 when a month has no funds: return an empty

@@ -99,6 +99,11 @@ def test_unknown_word_has_no_category():
 
 # --- currency + payment ----------------------------------------------------------
 
+def test_local_card_stays_in_dinars():
+    d = one("حوايج 120 بالكارطة")
+    assert (d.currency, d.paymentMethod) == ("TND", "bank")
+
+
 def test_euro_means_card():
     d = one("netflix 12.99€")
     assert (d.amount, d.currency, d.paymentMethod) == (Decimal("12.99"), "EUR", "card")
@@ -114,8 +119,9 @@ def test_euro_means_card():
         ("ستاغ 85 فيرمون", "bank"),
         ("قهوة 3 كاش", "cash"),
         ("قهوة 3 نقدا", "cash"),
-        ("حوايج 120 بالكارطة", "card"),
-        ("حوايج 120 كارطة", "card"),
+        ("حوايج 120 بالكارطة", "bank"),  # local card = bank (TND)
+        ("حوايج 120 كارطة", "bank"),
+        ("حوايج 120 بالبطاقة", "bank"),
         ("خبز 1", "cash"),  # default
     ],
 )
@@ -219,5 +225,6 @@ def test_two_weeks_tunisian_note():
     assert drafts[0].date == drafts[2].date == date(2026, 10, 28)
     assert drafts[3].date == drafts[4].date == date(2026, 10, 30)
     assert drafts[5].date == drafts[6].date == date(2026, 11, 5)
-    assert [d.paymentMethod for d in drafts[4:7]] == ["card", "cash", "bank"]
+    assert [d.paymentMethod for d in drafts[4:7]] == ["bank", "cash", "bank"]
+    assert (drafts[2].paymentMethod, drafts[2].currency) == ("card", "EUR")  # netflix €
     assert drafts[7].error == "no_amount"

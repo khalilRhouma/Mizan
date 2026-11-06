@@ -6,9 +6,11 @@ Rules only, no AI. One line = one transaction. For each line:
             currency word, else the largest number. "45,5" = 45.5.
             Millimes: "500 مليم" = 0.5, "1 دينار و 350 مليم" = 1.350.
             A leading "+" means income.
-  currency  €, eur, euro, يورو -> EUR (paid by card). Default TND.
-  payment   cash/نقد/كاش, carte/كارطة/بطاقة, bank/بنك/فيرمون (also with
-            بال: بالكارطة, بالبنك). Default cash.
+  currency  €, eur, euro, يورو -> EUR, paid with the friend's card (the only
+            "card" in the app). Default TND.
+  payment   cash/نقد/كاش; bank/بنك/فيرمون and the LOCAL card words
+            carte/كارطة/بطاقة (local card payments are noted as bank).
+            Also with بال: بالكارطة, بالبنك. Default cash.
   date      today/hier/أمس/البارح/أول البارح, weekday names (also Tunisian:
             الثنين, الحد, "نهار الخميس"), 3/11, 03-11-2026, "3 nov"
             (parsed by dateparser, day first, never in the future).
@@ -74,10 +76,14 @@ _MONTH_PREFIXES = (
 _EUR_WORDS = {"eur", "euro", "euros", "يورو", "اورو", "€"}
 _TND_WORDS = {"dt", "tnd", "dinar", "dinars", "دينار", "دينارات", "دنانير", "د.ت", "دت", "د"}
 _MILLIME_WORDS = {"مليم", "ملاليم", "millimes", "millime", "mill"}
+# "card" in the app means the FRIEND's euro card: it is chosen only by a euro
+# mark (see _EUR_WORDS). Local card words mean a bank payment in TND.
 _PAYMENT_WORDS = {
-    "cash": {"cash", "كاش", "نقد", "نقدا", "espece", "especes", "liquide", "cash"},
-    "card": {"card", "carte", "cb", "visa", "بطاقه", "كارطه", "كارت", "فيزا", "karta"},
-    "bank": {"bank", "banque", "virement", "بنك", "تحويل", "فيرمون", "فيرمان", "بانكه"},
+    "cash": {"cash", "كاش", "نقد", "نقدا", "espece", "especes", "liquide"},
+    "bank": {
+        "bank", "banque", "virement", "بنك", "تحويل", "فيرمون", "فيرمان", "بانكه",
+        "card", "carte", "cb", "visa", "بطاقه", "كارطه", "كارت", "فيزا", "karta",
+    },
 }
 
 _DATE_TOKEN_RE = re.compile(
@@ -159,8 +165,6 @@ def _parse_line(
         draft.paymentMethod = "card"
     elif payment:
         draft.paymentMethod = payment
-        if payment == "card":
-            draft.currency = "EUR"  # the app treats card payments as EUR
 
     draft.notes = " ".join(tokens[i] for i in rest).strip(" -–:,")
     draft.keywords = [w for i in rest for w in [norm[i]] if _is_word(w) and w not in STOPWORDS][:4]

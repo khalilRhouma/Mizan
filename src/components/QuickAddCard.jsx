@@ -241,7 +241,7 @@ function DraftRow({ lang, draft, onChange, onRemove }) {
         >
           <option value="cash">{t('payCash', lang)}</option>
           <option value="bank">{t('payBank', lang)}</option>
-          <option value="card">{t('payCard', lang)} (€)</option>
+          <option value="card">{t('payCard', lang)}</option>
         </select>
         <select
           value={draft.category ?? ''}
