@@ -21,6 +21,10 @@ async function request(path, options = {}) {
   return res.json()
 }
 
+export async function getCategories() {
+  return request('/categories')
+}
+
 export async function getTransactions() {
   return request('/transactions')
 }

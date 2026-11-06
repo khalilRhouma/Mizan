@@ -53,22 +53,17 @@ export const MONTH_NAMES = {
   ],
 }
 
-export const CATEGORIES = [
-  { key: 'salary', ar: 'راتب الوظيفة', en: 'Salary', type: 'income' },
-  { key: 'extra_income', ar: 'دخل إضافي', en: 'Extra income', type: 'income' },
-  { key: 'rent', ar: 'إيجار السكن', en: 'Rent', type: 'expense' },
-  { key: 'bills', ar: 'فاتورات', en: 'Bills', type: 'expense' },
-  { key: 'food', ar: 'مشتريات / طعام', en: 'Food / groceries', type: 'expense' },
-  { key: 'clothes', ar: 'ملابس', en: 'Clothes', type: 'expense' },
-  { key: 'health', ar: 'دواء / علاج', en: 'Health / medicine', type: 'expense' },
-  { key: 'needs', ar: 'حاجيات', en: 'Needs', type: 'expense' },
-  { key: 'donations', ar: 'صدقات', en: 'Donations', type: 'expense' },
-  { key: 'leisure', ar: 'ترفيه / رياضة', en: 'Leisure / sports', type: 'expense' },
-  { key: 'car', ar: 'مصاريف سيارة', en: 'Car expenses', type: 'expense' },
-  { key: 'construction', ar: 'بناء / مواد بناء / يد عاملة', en: 'Construction', type: 'expense' },
-  { key: 'investment_project', ar: 'مشاريع استثمار', en: 'Investment project', type: 'expense' },
-  { key: 'extra_expense', ar: 'مصروفات إضافية', en: 'Extra expenses', type: 'expense' },
-]
+/**
+ * Categories come from the API (GET /categories, defined in
+ * backend/app/categories.py). App.jsx loads them once with setCategories()
+ * before rendering any page.
+ * Shape: { key, ar, en, type: 'income' | 'expense' }
+ */
+export const CATEGORIES = []
+
+export function setCategories(list) {
+  CATEGORIES.splice(0, CATEGORIES.length, ...list)
+}
 
 export function getCategoryLabel(key, lang) {
   if (key === 'cash_withdrawal') {

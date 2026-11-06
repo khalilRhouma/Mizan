@@ -6,7 +6,9 @@ import DashboardPage from './pages/DashboardPage'
 import LogPage from './pages/LogPage'
 import MonthlyPage from './pages/MonthlyPage'
 import YearPage from './pages/YearPage'
-import { getSettings, saveSettings } from './services/storage'
+import { setCategories } from './constants'
+import { t } from './i18n'
+import { getCategories, getSettings, saveSettings } from './services/storage'
 
 function applyTheme(theme) {
   document.documentElement.classList.toggle('dark', theme === 'dark')
@@ -16,15 +18,21 @@ export default function App() {
   const [lang, setLang] = useState('ar')
   const [theme, setTheme] = useState('light')
   const [ready, setReady] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   useEffect(() => {
     let cancelled = false
-    getSettings().then((s) => {
-      if (cancelled) return
-      setLang(s.language)
-      setTheme(s.theme ?? 'light')
-      setReady(true)
-    })
+    Promise.all([getSettings(), getCategories()])
+      .then(([s, categories]) => {
+        if (cancelled) return
+        setCategories(categories)
+        setLang(s.language)
+        setTheme(s.theme ?? 'light')
+        setReady(true)
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true)
+      })
     return () => {
       cancelled = true
     }
@@ -45,8 +53,8 @@ export default function App() {
 
   if (!ready) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center text-text-muted text-sm">
-        …
+      <div className="min-h-screen bg-primary flex items-center justify-center text-text-muted text-sm px-4 text-center">
+        {loadError ? t('apiUnavailable', lang) : '…'}
       </div>
     )
   }

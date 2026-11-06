@@ -1,6 +1,7 @@
 const dictionary = {
   ar: {
     appTitle: 'نظام تتبع المالية',
+    apiUnavailable: 'تعذّر الاتصال بالخادم. تأكد أن الـ API يعمل ثم أعد تحميل الصفحة.',
     navLog: 'تسجيل',
     navMonthly: 'شهري',
     navDashboard: 'لوحة',
@@ -97,6 +98,7 @@ const dictionary = {
   },
   en: {
     appTitle: 'Personal Finance Tracker',
+    apiUnavailable: 'Cannot reach the server. Check that the API is running, then reload the page.',
     navLog: 'Log',
     navMonthly: 'Monthly',
     navDashboard: 'Dashboard',

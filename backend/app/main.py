@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.categories import CATEGORIES
 from app.config import settings
 from app.crud import (
     DEFAULT_SETTINGS,
@@ -54,6 +55,12 @@ app.add_middleware(
 def health(db: Session = Depends(get_db)):
     db.execute(text("SELECT 1"))
     return {"status": "ok"}
+
+
+@app.get("/categories")
+def api_list_categories():
+    """Categories for the pickers (single source of truth: app/categories.py)."""
+    return CATEGORIES
 
 
 @app.get("/transactions")
